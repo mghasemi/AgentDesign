@@ -11,11 +11,12 @@ profiles. The document ships together with sanitized, ready-to-use copies of bot
 ## Status
 
 Active — Phase I (exploration) and Phase II (documentation + packs) complete; Phases III–V open.
-The design document is `agent_design.tex` → `agent_design.pdf` (28 pp, compiles clean), and the
+The design document is `agent_design.tex` → `agent_design.pdf` (31 pp, compiles clean), and the
 profile packs are `math/` and `librarian/`. Three appendices carry the enumerations: Appendix A the
-service plane (`stack/`) component by component, Appendix B the MCP bridge server by server (tool
-surface and place in the workflow), and Appendix C the skill surface — the workflow's designated
-skills by stage, then the complete catalog with each entry's activation in both profiles.
+service plane (`stack/`) component by component, including why each component was selected and what
+would replace it; Appendix B the MCP bridge server by server (tool surface and place in the
+workflow); and Appendix C the skill surface — the workflow's designated skills by stage, then the
+complete catalog with each entry's activation in both profiles.
 
 ## Working Directory
 

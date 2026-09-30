@@ -915,6 +915,85 @@ APIs. Their absence from the stack is a design decision rather than an oversight
 data or a service that a container cannot supply, and each is reachable from the profiles on the same
 terms as the containerised components.
 
+\subsection{Why these tools}\label{sec:whytools}
+
+The components above were not assembled from a preference list; they are the ones that satisfied six
+constraints at once, and each constraint is a property the workflow depends on.
+
+\begin{itemize}
+    \item \textbf{Self-hosted and open source.} The retrieval cascade is deliberately local-first, and a
+    tier that bills per query or throttles by contract cannot be its first stop. Every knowledge and
+    retrieval component runs on the same host as the profiles.
+    \item \textbf{An HTTP API, not only a user interface.} A service becomes a tool only through the
+    adapter pattern of Appendix~\ref{app:mcp}, which introspects a command-line tool and publishes it.
+    A component whose only interface is a web page cannot be reached by the workflow at all.
+    \item \textbf{One container, with its state in a volume.} The whole plane is a single compose
+    project. Anything requiring a cluster, an operator or a managed control plane was out of scope
+    before its features could be considered.
+    \item \textbf{Storage in an open, inspectable format.} Markdown, Postgres, ZIM archives and a
+    property graph are all readable without the tool that wrote them. The knowledge base is meant to
+    outlive the tooling around it.
+    \item \textbf{A footprint that fits a workstation.} The plane runs beside the research machine
+    rather than in a data centre; the two components that need real resources --- the inference server
+    and the ebook library --- were left outside the stack for that reason
+    (Table~\ref{tab:stackexternal}).
+    \item \textbf{A role with no cheaper local substitute.} Each component answers a call the six
+    stages actually make: a task to open, a document to ingest, an article to ground, a formula to
+    find again.
+\end{itemize}
+
+Two tables follow. The first covers the components the workflow writes to and reads from; the second
+covers retrieval and the platform beneath it. In both, the alternatives are live substitutes rather
+than rejected bids --- nothing in the workflow depends on a product identity, because every service is
+reached through an HTTP endpoint and a thin adapter.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{Why the knowledge and workflow services fit, and what would replace them.}\label{tab:whywrite}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.8cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Component} & \textbf{Why it fits} & \textbf{Alternatives, and the trade-off} \\
+\midrule
+SiYuan & Block-level API with first-class equation blocks. A finding can be written, searched and read back as a block, and a formula survives as a formula --- which is what lets a verified expression travel from the computation stage into a draft. & Obsidian and Logseq are better personal editors and files-first, but neither exposes a server-side block API; Joplin stores notes but has a weaker block model; Notion would move the knowledge base off the machine. \\
+Vikunja & Projects, tasks, statuses, due dates and comments behind a REST API broad enough to give the bridge its largest tool surface. A hypothesis tree is exactly a parent task with child branches carrying a status. & Kanboard is mature and simpler to run, with a thinner status model; Focalboard is board-centric; Nextcloud Tasks only makes sense where Nextcloud is already run; Linear and Todoist are hosted services. \\
+PocketBase & A drop point with an API, which decouples capture from processing: a document is filed and the pipeline drains it later. It is the reason ingestion can be asynchronous. & n8n is far more capable and far heavier; Airflow is a batch scheduler, oversized for a queue; Huginn is agent-oriented with no file queue; a watched directory has no metadata and no status. \\
+Honcho (api, deriver, pgvector, redis) & Memory as a service the runtime already speaks, with a background worker that maintains the peer representation between sessions. What was concluded, and the session summaries, live in pgvector rather than in a prompt. & Mem0, Zep and Letta are comparable memory services, but each would need its own provider integration written before it could replace this one; the built-in markdown memory files the profiles also keep are durable but unstructured, and are no substitute for derived summaries. \\
+PaperFlow & PDF to Markdown with OCR, queued, which is precisely the ingestion step the wiki pipeline needs; the pipeline behind it handles scanned books as well as digital ones. & marker, MinerU and Docling are all strong and none is packaged as a queue-backed service; GROBID is excellent at scholarly structure and references but narrower on general books; Mathpix gives the best mathematical OCR and is a paid API. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{Why the retrieval and platform components fit, and what would replace them.}\label{tab:whyread}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.8cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Component} & \textbf{Why it fits} & \textbf{Alternatives, and the trade-off} \\
+\midrule
+SearXNG (with redis) & Federated metasearch with no API key and structured output: the live-web tier of the cascade without a SaaS contract or a per-query cost. The Redis companion is what keeps the instance from being banned upstream. & Whoogle fronts a single engine; 4get is similar in spirit; Brave Search and SerpAPI are paid external services that reintroduce exactly the contract this tier exists to avoid. \\
+ZIMI & Serves ZIM archives --- the offline-encyclopedia format --- over HTTP with search and clean-text endpoints, which is what makes sub-second archival grounding possible before any rate-limited search. A query can be aimed at one archive, such as a mathematics subset. & Kiwix-serve, the canonical ZIM server, reads the same archives with a plainer API; reading the archives from disk without a service is possible but loses search and text extraction. \\
+LightRAG (with neo4j and qdrant) & A graph-RAG service with a REST API: entities and relations over the literature lake, answering multi-hop questions the vector tier alone cannot. The Neo4j and Qdrant containers are its stores, so one service covers graph and vectors. & Microsoft GraphRAG builds richer community summaries but costs far more to index and is not a service; RAGFlow is document-centric; a hand-built LlamaIndex and Neo4j pipeline gives full control and all of the maintenance; plain vector search removes two components and the multi-hop answers with them. \\
+Nginx Proxy Manager & One reverse proxy for the whole plane, with a UI for certificate issuance. With one host and many ports, TLS termination is the only thing the edge is asked to do. & Traefik is declarative and better when the routing lives in code; Caddy has the simplest automatic HTTPS and no UI; plain nginx gives full control with manual certificates. On the live installation no proxy hosts are configured yet, so this component is provisioned and idle. \\
+Portainer & Inspect, restart and read the logs of the plane from a terminal API, without spending a bridge registration on it. & Dockge and lazydocker are lighter and compose-focused; docker compose itself already does the part that matters, which is why this is the most optional component in the inventory. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Two of the choices were not free, and the distinction is worth keeping. Cross-session memory is a
+capability the runtime provides through a provider interface, so replacing the memory service would be
+an integration project rather than a compose edit. And the graph-RAG service is the only component on
+the bridge that can answer a multi-hop question, so it is not interchangeable with the search tiers
+above it --- the archive and the metasearch instance can each be swapped without touching the
+workflow, and this one cannot.
+
+The converse also holds, and it is where the plane is thinnest. The edge component is provisioned but
+carries no routing, and the management component duplicates what the compose file already does. The
+two components whose absence would break a path are neither of them the edge: without the conversion
+service the ingestion path stalls, and without the memory service the continuity between sessions
+degrades to whatever a single context window can hold.
+
 \subsection{Deployment notes}
 
 The stack is a single compose project, and no credential is stored in it: every one is interpolated
