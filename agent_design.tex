@@ -108,8 +108,8 @@ mathematical research workflow --- \textbf{\mono{math}} and \textbf{\mono{librar
 specifies an abstraction layer under which either profile can be re-pointed at any future math
 project without modification. Sanitized, ready-to-use copies of both profiles ship with this
 document as the \mono{math/} and \mono{librarian/} folders (Section~\ref{sec:folders}); the
-companion artifacts listed in Section~\ref{sec:sources} let every claim here be re-derived from a
-live installation.
+companion artifacts listed in the closing Sources and Verification note let every claim here be
+re-derived from a live installation.
 
 The architecture resolves into five layers: a shared \emph{Hermes core}, an isolated
 \emph{profile system}, a \emph{skill catalog} (capability-gated per profile), an \emph{MCP bridge}
@@ -927,6 +927,205 @@ The stack was validated against the live installation rather than merely parsed.
 configuration resolves cleanly, a dry run produces the complete creation plan, and that plan matches
 the running containers one for one --- identical container names and identical published host ports
 for all sixteen components.
+
+\section{The Model Context Protocol Bridge}\label{app:mcp}
+
+Section~\ref{sec:mcp} described the bridge between the profiles and their tools; this appendix
+enumerates what crosses it. Every capability the profiles reach without a shell goes through a Model
+Context Protocol server, and every server is registered in the profile's configuration under a name
+that becomes the first half of the tool name the model sees. Thirteen servers are registered in each
+profile, exposing seventy-five tools in total, and they divide into two families by construction
+rather than by purpose.
+
+\subsection{Conventions of the bridge}
+
+Three conventions govern the whole layer, and each of them is visible in the tables below.
+
+\begin{itemize}
+    \item \textbf{Naming.} A tool is addressed as \mono{mcp\_\_} followed by the server name and the
+    tool name, each pair separated by a double underscore --- for example the task-creation tool of
+    the ledger server. The name is derived from the registration, not chosen by the server, so
+    renaming a server renames every tool it exposes.
+    \item \textbf{Families.} A \emph{native} server speaks the protocol directly: it implements the
+    tool list and the call handler itself. A \emph{CLI-adapter} server is a thin wrapper around an
+    ordinary command-line tool --- the adapter introspects the tool's argument parser at startup,
+    publishes each subcommand as a tool with a JSON schema for its arguments, and rebuilds a command
+    line from the call it receives. Nine of the thirteen servers are adapters, and the pattern is why
+    adding a new service-backed capability costs a script and a configuration entry rather than
+    protocol code.
+    \item \textbf{Credentials.} Every server receives its endpoint and secret through environment
+    variables declared in the registration, not in the script. The scripts are therefore portable
+    between profiles and machines, and the same registration block appears verbatim in both profiles.
+\end{itemize}
+
+The servers divide into those that compute, those that verify and those that retrieve --- Tables
+\ref{tab:mcpcompute} and \ref{tab:mcpknow} --- and the two tables together account for the whole
+registration list of either profile.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{The computing, verifying and retrieving servers.}\label{tab:mcpcompute}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}p{1.6cm} >{\raggedright\arraybackslash}p{0.9cm} >{\raggedright\arraybackslash}p{3.3cm} X@{}}
+\toprule
+\textbf{Server} & \textbf{Family} & \textbf{Tools} & \textbf{Backing service} & \textbf{What it provides} \\
+\midrule
+sagemath & native & 10 & SageMath, local & Exact symbolic and algebraic computation: solving, factoring, simplification, matrices, number fields, and arbitrary scripts \\
+lean4 & native & 4 & Lean 4 with a pinned Mathlib project & Formal verification: check a file, search the library, run ad-hoc code, attempt an automated proof \\
+wolfram\textbar Alpha & CLI adapter & 3 & Wolfram\textbar Alpha SaaS API & Queries whose answer is a number or a closed form rather than a derivation \\
+scientific-coding & CLI adapter & 4 & Sandboxed Python runtime & Deterministic experiments under CPU and memory caps, with an option to publish results to the note store \\
+searxng & native & 1 & SearXNG container (Appendix~\ref{app:stack}) & Live federated web search returning structured results \\
+zimi & CLI adapter & 4 & ZIMI container over ZIM archives & Offline encyclopedia lookups for archival grounding before any live search \\
+lightrag-query & CLI adapter & 3 & LightRAG container & Multi-hop entity and relation queries over the ingested literature lake \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{The knowledge, ledger and production servers.}\label{tab:mcpknow}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}p{1.6cm} >{\raggedright\arraybackslash}p{0.9cm} >{\raggedright\arraybackslash}p{3.3cm} X@{}}
+\toprule
+\textbf{Server} & \textbf{Family} & \textbf{Tools} & \textbf{Backing service} & \textbf{What it provides} \\
+\midrule
+vikunja & CLI adapter & 15 & Vikunja container & The task ledger: projects and tasks, with statuses, due dates and comments; the substrate of hypothesis trees \\
+siyuan & CLI adapter & 7 & SiYuan container & Block-level notes: create, read, search and update documents and blocks, including equations \\
+zotero & CLI adapter & 7 & Zotero API & Bibliography: search the library, add by DOI, export BibTeX and synchronise a bibliography file \\
+latex-manuscript & CLI adapter & 5 & Local TeX Live & Manuscript production: compile, AST-aware edit checks, glossary, notation audit and diff-patch \\
+calibre & native & 12 & calibre-server on the host & Library management and format conversion; registered in the librarian, environment-only in math \\
+hermes-irene & direct script & --- & A deleted development worktree & Registered in both profiles but not resolvable: dormant in math, failing at start-up in the librarian \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{What each server exposes}
+
+Each server is described below in the order the tables introduce it: what it exposes, and how the
+workflow actually spends it.
+
+\begin{description}
+
+\item[\mono{sagemath}] Ten tools over a local SageMath installation: \mono{sage\_solve},
+\mono{sage\_diff}, \mono{sage\_integrate}, \mono{sage\_simplify}, \mono{sage\_factor},
+\mono{sage\_expand}, \mono{sage\_latex}, \mono{sage\_matrix}, \mono{sage\_number\_field} and
+\mono{sage\_run\_script}. This is the first stop of the computation stage, and the one that carries
+exactness: a computation that can be done symbolically is done here rather than numerically, and the
+\mono{sage\_latex} tool exists so that a verified expression can be moved into a manuscript without
+retyping it.
+
+\item[\mono{lean4}] Four tools against a pinned library project: a file checker, a library search, an
+ad-hoc evaluation entry point and an automated prover. The verification stage runs on this server
+alone, and its discipline is what makes the stage worth having --- a check must name its project
+directory explicitly, because a check without a library context compiles against nothing and proves
+nothing.
+
+\item[\mono{wolfram-alpha}] Three tools wrapping the public API: a short answer, a validation call
+and a verification call. It is used for questions whose answer is a closed form or a number, in
+particular when the local stack is unavailable or when an independent implementation is wanted as a
+cross-check on a SageMath result.
+
+\item[\mono{scientific-coding}] Four tools running Python inside a sandbox with a CPU-second and
+memory ceiling declared in the registration. This is where numerical experiments, plots and
+simulations run when they must not touch the host, and one of the tools writes a result into the note
+store, which is how an experiment's output reaches the knowledge base without a shell command.
+
+\item[\mono{searxng}] A single search tool over the federated metasearch container. It is the
+live-web arm of the retrieval cascade and is deliberately last in preference order: the cascade tries
+local sources first and reaches the open web only when they cannot answer.
+
+\item[\mono{zimi}] Four tools over the offline archive container: search, retrieval, reading a
+document and suggesting a follow-up. It is the archival-grounding step --- encyclopedic and
+historical facts are settled here, in under a second, before a rate-limited web search is spent on
+them.
+
+\item[\mono{lightrag-query}] Three tools over the graph-RAG container: a query, a streaming query
+and a data query. It answers multi-hop questions across the ingested literature lake and is the only
+way the profiles reach the entity graph, which makes the ingestion pipeline a prerequisite for the
+literature stage rather than a parallel activity.
+
+\item[\mono{vikunja}] Fifteen tools, the largest surface in the bridge, split between projects
+(list, search, get, create, update) and tasks (list, overdue, search, get, create, update, delete,
+complete, log). It carries the first and last stages of the workflow: the decomposition stage opens a
+task and a hypothesis tree through it, and the close-out stage records the outcome in the same
+structure. Its second role is continuity --- the ledger, not the conversation, is what a later
+session reads to find out what was decided and what is still open.
+
+\item[\mono{siyuan}] Seven tools over the note store: create, read, update and search documents and
+blocks. It is the human-readable layer of the knowledge base, used when a finding should be legible
+rather than machine-queryable, and its equation blocks are how a verified formula survives from the
+computation stage into a manuscript draft.
+
+\item[\mono{zotero}] Seven tools over the bibliography: searching the library, adding an entry by
+identifier, listing collections, exporting BibTeX and synchronising a bibliography file. It sits
+immediately after the citation verification gate in the literature stage --- a reference is verified
+against primary metadata first and only then added to the library, so the library never accumulates a
+citation that has not been checked.
+
+\item[\mono{latex-manuscript}] Five tools over the local TeX installation: compile, an
+abstract-syntax-aware edit check, glossary generation, a notation audit and a diff-patch applier.
+This is the manuscript stage's whole tool surface, and its two unusual members are the ones that
+matter: the edit check catches structural damage that a successful compile would not, and the
+notation audit catches the same symbol carrying two meanings across sections.
+
+\item[\mono{calibre}] Twelve tools for library management and format conversion, registered as a
+native server in the librarian and as an environment-only block in math --- the same name with
+different meanings in the two profiles, noted in Section~\ref{sec:defects}. Its role is ingestion:
+converting an acquired book or paper into a form the knowledge base can absorb.
+
+\item[\mono{hermes-irene}] Not a working server. Both profiles register it against a script inside a
+development worktree that was merged into the main package and then deleted, so the registration
+dangles: dormant in math, enabled and failing at start-up in the librarian. It is listed here because
+the bridge's inventory is only complete if its one broken member is in it, and because the correct
+replacement --- a bridge to the numerical backend the profiles invoke by shell today --- remains the
+open item recorded in Section~\ref{sec:defects}.
+
+\end{description}
+
+\begin{table}[htbp]
+\centering\small
+\caption{Where the bridge enters the six-stage workflow of Section~\ref{sec:workflow}.}\label{tab:mcpstages}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.9cm} >{\raggedright\arraybackslash}p{3.6cm} X@{}}
+\toprule
+\textbf{Stage} & \textbf{Servers} & \textbf{How the stage uses them} \\
+\midrule
+1. Problem decomposition & vikunja & The restated problem becomes a task with a hypothesis tree; the tree is what later stages attach results to \\
+2. Literature synthesis & zimi, searxng, lightrag-query, zotero & Archival grounding first, then live search, then multi-hop queries over the ingested lake; a verified reference is added to the bibliography \\
+3. Computation & sagemath, wolfram-alpha, scientific-coding & Exact symbolic work first, an independent implementation as cross-check, sandboxed numerics where the computation must be approximate \\
+4. Formal verification & lean4 & Formalise the claim, compile it against a pinned library project, then diff the verified statement against the informal one \\
+5. Manuscript production & latex-manuscript, siyuan & Compile and structurally check the source; the note store carries the notation decisions and equation blocks the draft reuses \\
+6. Reflection and close-out & vikunja, siyuan & Close the tasks, write the outcome into the ledger and the notes, and record the failures that should become skill pitfalls \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Notes on the bridge}
+
+\textbf{The bridge is not capability-gated.} Both profiles register the same thirteen servers, and all
+of them are enabled in both. What differs between the profiles is which \emph{skills} are active, not
+which tools exist: the librarian's skill list disables the computational and proof surface, yet the
+librarian's configuration still carries a live handle to it. Capability gating at the skill layer and
+capability gating at the bridge layer are two different things, and only the first is implemented
+today.
+
+\textbf{Seventy-five tools are exposed.} The count is dominated by the ledger (fifteen) and the
+library server (twelve); the two servers that carry the intellectual weight of the workflow, the
+computer-algebra system and the proof assistant, expose ten and four. Tool count is therefore a poor
+proxy for importance here --- a point the abstraction layer of Section~\ref{sec:abstraction} has to
+respect, since a capability gate keyed on the bridge would grant far more than the workflow needs.
+
+\textbf{One capability of the workflow is not on the bridge at all.} Cross-session memory is served
+by a built-in provider rather than an MCP server, so it is absent from the inventory above by
+construction: the memory service of Appendix~\ref{app:stack} is reached by the runtime, not by a
+tool call. The same is true of web search and file access, which are built-in tools rather than
+registered servers.
+
+\textbf{Every path in the bridge resolves into the math profile.} The registrations of both profiles
+--- including the librarian's, which has no script directory of its own --- point at scripts inside
+the math profile's tree. This is the cross-profile coupling of Section~\ref{sec:defects} seen from the
+bridge's side: the bridge is the single largest thing that would break if the math profile were moved
+or deleted.
 
 %=====================================================================
 \section*{Sources and Verification}\label{sec:sources}
