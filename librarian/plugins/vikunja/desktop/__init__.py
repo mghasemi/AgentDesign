@@ -1,0 +1,1 @@
+# Vikunja desktop UI plugin

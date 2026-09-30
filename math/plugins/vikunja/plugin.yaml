@@ -1,0 +1,8 @@
+name: vikunja
+version: 1.0.0
+key: vikunja
+description: Vikunja dashboard backend plugin — provides API endpoints to view projects and tasks from a Vikunja Kanban server. Set VIKUNJA_TOKEN in your profile config to enable.
+
+dependencies:
+  - fastapi
+  - requests

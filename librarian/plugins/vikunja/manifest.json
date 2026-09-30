@@ -1,0 +1,4 @@
+{
+  "name": "vikunja",
+  "api": "dashboard/plugin_api.py"
+}

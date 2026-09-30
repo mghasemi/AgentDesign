@@ -1,0 +1,9 @@
+{
+  "last_report_path": "/home/YOUR-USER/.hermes/profiles/librarian/logs/curator/20260929-124516",
+  "last_run_at": "2026-09-29T12:45:16.550159+00:00",
+  "last_run_duration_seconds": 0.361749,
+  "last_run_summary": "auto: 3 marked stale, 4 archived; llm: skipped (consolidation off)",
+  "last_run_summary_shown_at": "2026-09-15T12:06:49.011564+00:00",
+  "paused": false,
+  "run_count": 8
+}

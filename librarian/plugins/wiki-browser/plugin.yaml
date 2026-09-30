@@ -1,0 +1,4 @@
+name: wiki-browser
+version: 1.0.0
+key: wiki-browser
+description: Backend API for the Wiki Browser desktop plugin — manages VitePress dev server lifecycle, plus desktop UI for browsing the Hermes knowledge wiki

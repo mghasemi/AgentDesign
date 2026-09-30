@@ -1,0 +1,79 @@
+EVIDENCE: dpsprep 2.8.3 OCR path deadlocks (do not use --socr)
+============================================================
+
+Captured: 2026-09-17, host pop/24.04 (Linux 7.1.5), python 3.12, dpsprep 2.8.3,
+djvulibre-python 0.9.3, ocrmypdf 17.12.1 (venv) / 15.2.0 (apt).
+
+Reproduction (hangs indefinitely; no error, no timeout):
+
+    rm -rf /var/tmp/dpsprep/*
+    PYTHONFAULTHANDLER=1 dpsprep -p 1 -q 85 --socr eng -f fixture_notext.djvu out.pdf
+
+Symptom: stdout reaches "Failed to encode page N. Trying again without setting
+quality" for all pages, page_bg_{1,2,3}.pdf appear in /var/tmp/dpsprep/<hash>/,
+then the process sleeps forever. No worker children remain alive (no tesseract,
+no gs, no ocrmypdf subprocess) - it is a pure-python wait, not a busy subprocess.
+Reproduced with -p 1 and with a cleared working directory.
+
+Diagnosis: SIGABRT with PYTHONFAULTHANDLER=1 dumps the stack below; the main
+thread polls a multiprocessing connection for results that never arrive, because
+the workers died. There is no timeout in dpsprep, so a dead worker means a
+permanent hang rather than a failure.
+
+Note: rc=134 in a shell means 128+6 = SIGABRT. If a background wrapper reports
+rc=134 for a dpsprep run, check whether the dump was self-inflicted (this file)
+before treating it as a crash.
+
+Control checks that isolate the fault to dpsprep, not OCRmyPDF:
+
+  - /usr/bin/ocrmypdf (15.2.0) OCRs a raster PDF correctly in ~1s.
+  - venv ocrmypdf (17.12.1) does the same, rc=0.
+  - djvu2pdf -m ocr (ddjvu raster -> ocrmypdf CLI) works: 3 pages ~0.4s.
+
+---------------------------- traceback ----------------------------
+
+Fatal Python error: Aborted
+
+Thread 0x000072e4149d16c0 (most recent call first):
+  File "/usr/lib/python3.12/socket.py", line 295 in accept
+  File "/usr/lib/python3.12/multiprocessing/connection.py", line 626 in accept
+  File "/usr/lib/python3.12/multiprocessing/connection.py", line 480 in accept
+  File "/usr/lib/python3.12/multiprocessing/resource_sharer.py", line 138 in _serve
+  File "/usr/lib/python3.12/threading.py", line 1010 in run
+  File "/usr/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/usr/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x000072e4151d26c0 (most recent call first):
+  File "/usr/lib/python3.12/threading.py", line 359 in wait
+  File "/usr/lib/python3.12/threading.py", line 655 in wait
+  File ".../site-packages/rich/live.py", line 35 in run
+  File "/usr/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/usr/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x000072e4171d66c0 (most recent call first):
+  <no Python frame>
+
+Current thread 0x000072e41c913080 (most recent call first):
+  File "/usr/lib/python3.12/selectors.py", line 415 in select
+  File "/usr/lib/python3.12/multiprocessing/connection.py", line 1136 in wait
+  File "/usr/lib/python3.12/multiprocessing/connection.py", line 440 in _poll
+  File "/usr/lib/python3.12/multiprocessing/connection.py", line 257 in poll
+  File ".../site-packages/dpsprep/concurrency/processor.py", line 84 in process
+  File ".../site-packages/dpsprep/concurrency/api.py", line 21 in concurrently_process_pages
+  File ".../site-packages/dpsprep/cli.py", line 134 in dpsprep
+  File ".../site-packages/click/decorators.py", line 34 in new_func
+  File ".../site-packages/click/core.py", line 910 in invoke
+  File ".../site-packages/click/core.py", line 1415 in invoke
+  File ".../site-packages/click/core.py", line 1552 in main
+  File ".../site-packages/click/core.py", line 1631 in __call__
+  File "/home/YOUR-USER/.local/bin/dpsprep", line 6 in <module>
+
+Extension modules: djvu.sexpr, djvu.decode, fontTools.misc.bezierTools,
+uharfbuzz._harfbuzz, fontTools.varLib.iup, lxml._elementpath, lxml.etree,
+PIL._imaging, _cffi_backend, PIL._imagingcms (total: 10)
+
+------------------------------------------------------------------
+
+To re-test on a newer dpsprep: bump the venv install, run the reproduction above
+under `timeout 120`, and if it returns a PDF with text in ~seconds, the `ocr`
+engine's rationale can be revisited (the ddjvu->ocrmypdf path would still be fine).

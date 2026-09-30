@@ -1,0 +1,374 @@
+model:
+  default: qwen3.8-27b
+  provider: lmstudio
+  base_url: http://localhost:1234/v1
+  api_mode: REPLACE_ME
+providers:
+  lmstudio:
+    base_url: http://localhost:1234/v1
+    models:
+      qwen3.8-27b:
+        stale_timeout_seconds: 900
+fallback_providers:
+  - provider: lmstudio
+    model: qwen3.8-27b
+agent:
+  service_tier: auto
+  reasoning_overrides:
+    qwen3.8-27b: medium
+  reasoning_effort: medium
+terminal:
+  cwd: /home/YOUR-USER/Code/
+browser:
+  allow_private_urls: true
+  cloud_provider: browser-use
+auxiliary:
+  compression:
+    provider: nous
+    model: poolside/laguna-s-2.1:free
+  title_generation:
+    provider: lmstudio
+    model: qwen3-8b
+  profile_describer:
+    provider: lmstudio
+    model: qwen3-8b
+display:
+  pet:
+    enabled: false
+    slug: pixel-panda
+dashboard:
+  basic_auth:
+    username: YOUR-USER
+    password_hash: REPLACE_ME
+    secret: REPLACE_ME
+tts:
+  provider: openai
+stt:
+  enabled: false
+voice:
+  auto_tts: false
+context:
+  engine: compressor
+memory:
+  provider: honcho
+delegation:
+  reasoning_effort: high
+moa:
+  presets:
+    default:
+      reference_models:
+        - provider: openrouter
+          model: moonshotai/kimi-k2.6
+          enabled: true
+        - provider: openrouter
+          model: z-ai/glm-5.3
+          enabled: true
+      aggregator:
+        provider: openrouter
+        model: deepseek/deepseek-v4-pro
+      degraded_reference_policy: loud
+      fanout: per_iteration
+  reference_models:
+    - provider: openrouter
+      model: moonshotai/kimi-k2.6
+      enabled: true
+    - provider: openrouter
+      model: z-ai/glm-5.3
+      enabled: true
+  aggregator:
+    provider: openrouter
+    model: deepseek/deepseek-v4-pro
+  max_tokens: REPLACE_ME
+  fanout: per_iteration
+  enabled: true
+  degraded_reference_policy: loud
+skills:
+  disabled:
+    - calibre
+    - context-budget-audit
+    - differential-sdp
+    - docx
+    - dogfood
+    - dsdp-extension-workflow
+    - github
+    - github-auth
+    - github-repo-management
+    - inspecting-hermes-desktop-dom
+    - irene-rewrite-dev
+    - lean4
+    - lean4-goedel-agent
+    - llama-cpp
+    - local-model-delegation
+    - merge-reconciler
+    - node-inspect-debugger
+    - opencode
+    - powerpoint
+    - project-bib
+    - rss-feeds
+    - sagemath-mcp
+    - scientific-coding
+    - sdlc-review
+    - session-librarian
+    - sympy-mcp
+    - test-driven-development
+    - workspace-doc-hierarchy
+approvals:
+  mode: 'off'
+command_allowlist:
+  - script execution via -e/-c flag
+plugins:
+  enabled:
+    - vikunja
+    - wiki-browser
+  disabled:
+    - hermes-android
+    - spotify
+  entries:
+    hermes-android:
+      allow_tool_override: false
+    wiki-browser:
+      allow_tool_override: false
+hooks:
+  on_session_start:
+    - command: ~/.hermes/agent-hooks/ensure-lmstudio.sh
+security:
+  allow_private_urls: true
+kanban:
+  orchestrator_profile: math
+  default_assignee: math
+code_execution:
+  mode: project
+sessions:
+  auto_archive: true
+desktop:
+  repo_scan_roots:
+    - /home/YOUR-USER/Code/
+_config_version: 49
+mcp_servers:
+  vikunja:
+    command: /home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python
+    args:
+      - /home/YOUR-USER/.hermes/profiles/math/scripts/mcp_cli_adapter.py
+    env:
+      VIKUNJA_URL: http://YOUR-HOST:3456
+      VIKUNJA_ALT_URL: http://YOUR-DDNS-HOST:3456
+      VIKUNJA_TOKEN: REPLACE_ME
+      TOOL_SCRIPT: /home/YOUR-USER/.hermes/profiles/math/skills/productivity/vikunja/vikunja_tool.py
+      TOOL_SERVER_NAME: vikunja
+    timeout: 30
+  wolfram-alpha:
+    command: /home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python
+    args:
+      - /home/YOUR-USER/.hermes/profiles/math/scripts/mcp_cli_adapter.py
+    env:
+      WOLFRAM_ALPHA_APPID: REPLACE_ME
+      WOLFRAM_ALPHA_TIMEOUT: '20'
+      TOOL_SCRIPT: /home/YOUR-USER/.hermes/profiles/math/skills/research/wolfram-alpha/wolfram_alpha_tool.py
+      TOOL_SERVER_NAME: wolfram-alpha
+    timeout: 30
+  lightrag-query:
+    command: /home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python
+    args:
+      - /home/YOUR-USER/.hermes/profiles/math/scripts/mcp_cli_adapter.py
+    env:
+      LIGHTRAG_URL: http://YOUR-HOST:9621
+      LIGHTRAG_ALT_URL: http://YOUR-DDNS-HOST:9621
+      LIGHTRAG_TIMEOUT: '20'
+      LIGHTRAG_API_KEY: REPLACE_ME
+      TOOL_SCRIPT: /home/YOUR-USER/.hermes/profiles/math/skills/research/lightrag/lightrag_query_tool.py
+      TOOL_SERVER_NAME: lightrag-query
+    timeout: 30
+  siyuan:
+    command: /home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python
+    args:
+      - /home/YOUR-USER/.hermes/profiles/math/scripts/mcp_cli_adapter.py
+    env:
+      SIYUAN_URL: http://YOUR-HOST:6806
+      SIYUAN_TOKEN: REPLACE_ME
+      TOOL_SCRIPT: /home/YOUR-USER/.hermes/profiles/math/skills/productivity/siyuan/siyuan_tool.py
+      TOOL_SERVER_NAME: siyuan
+    timeout: 30
+  zimi:
+    command: /home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python
+    args:
+      - /home/YOUR-USER/.hermes/profiles/math/scripts/mcp_cli_adapter.py
+    env:
+      ZIMI_URL: http://YOUR-HOST:8899
+      ZIMI_ALT_URL: http://YOUR-DDNS-HOST:8899
+      ZIMI_TIMEOUT: '20'
+      TOOL_SCRIPT: /home/YOUR-USER/.hermes/profiles/math/skills/research/zimi/zimi_tool.py
+      TOOL_SERVER_NAME: zimi
+    timeout: 30
+  searxng:
+    command: /home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python
+    args:
+      - /home/YOUR-USER/.hermes/profiles/math/skills/research/searxng/scripts/searxng_mcp_server.py
+    env:
+      SEARXNG_URL: http://YOUR-HOST:5050
+    timeout: 30
+  zotero:
+    command: /home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python
+    args:
+      - /home/YOUR-USER/.hermes/profiles/math/scripts/mcp_cli_adapter.py
+    env:
+      ZOTERO_LIBRARY_TYPE: user
+      ZOTERO_LIBRARY_ID: REPLACE_ME
+      ZOTERO_API_KEY: REPLACE_ME
+      ZOTERO_BIB_PATH: ''
+      TOOL_SCRIPT: /home/YOUR-USER/.hermes/profiles/math/skills/productivity/zotero/zotero_tool.py
+      TOOL_SERVER_NAME: zotero
+    timeout: 30
+  scientific-coding:
+    command: /home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python
+    args:
+      - /home/YOUR-USER/.hermes/profiles/math/scripts/mcp_cli_adapter.py
+    env:
+      SANDBOX_CPU_SECONDS: '30'
+      SANDBOX_MEM_MB: '512'
+      SIYUAN_URL: http://YOUR-HOST:6806
+      SIYUAN_TOKEN: REPLACE_ME
+      TOOL_SCRIPT: /home/YOUR-USER/.hermes/profiles/math/skills/research/scientific-coding/scientific_coding_tool.py
+      TOOL_SERVER_NAME: scientific-coding
+    timeout: 60
+  lean4:
+    command: /home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python
+    args:
+      - /home/YOUR-USER/.hermes/profiles/math/skills/research/lean4/lean4_mcp_server.py
+    env:
+      HOME: /home/YOUR-USER
+      PATH: /home/YOUR-USER/.elan/bin:/usr/bin
+    timeout: 30
+  sagemath:
+    command: /home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python
+    args:
+      - /home/YOUR-USER/.hermes/profiles/math/skills/research/sagemath-mcp/sagemath_mcp_server.py
+    env:
+      SAGE_TIMEOUT: '120'
+      PATH: /home/YOUR-USER/miniconda3/envs/sage/bin:/home/YOUR-USER/.elan/bin:/usr/bin
+    timeout: 30
+  latex-manuscript:
+    command: /home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python
+    args:
+      - /home/YOUR-USER/.hermes/profiles/math/scripts/mcp_cli_adapter.py
+    env:
+      LATEX_COMPILER: pdflatex
+      LATEX_GLOSSARY_GROUP: math-notation-glossary
+      TOOL_SCRIPT: /home/YOUR-USER/.hermes/profiles/math/skills/productivity/latex-manuscript/latex_tool.py
+      TOOL_SERVER_NAME: latex-manuscript
+    timeout: 30
+  hermes-irene:
+    command: /home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python
+    args:
+      - /home/YOUR-USER/Code/Python/IreneRewrite/scripts/hermes_mcp_tool.py
+    env:
+      LIGHTRAG_URL: http://YOUR-HOST:9621
+      LIGHTRAG_ALT_URL: http://YOUR-DDNS-HOST:9621
+      LIGHTRAG_TIMEOUT: '30'
+      IRENE_SOURCE_DIR: /home/YOUR-USER/Code/Python/IreneRewrite/Irene
+    enabled: true
+  calibre:
+    command: /home/YOUR-USER/Code/Python/tools/calibre-mcp/.venv/bin/python
+    args:
+      - /home/YOUR-USER/Code/Python/tools/calibre-mcp/server.py
+    env:
+      CALIBRE_BASE_URL: http://YOUR-HOST:9876/calibre
+      CALIBRE_LIBRARY_PATH: /home/YOUR-USER/Documents/calibre
+    timeout: 300
+image_gen:
+  use_gateway: true
+platform_toolsets:
+  cli:
+    - a2a
+    - browser
+    - clarify
+    - code_execution
+    - computer_use
+    - connections
+    - cronjob
+    - delegation
+    - file
+    - kanban
+    - memory
+    - session_search
+    - skills
+    - terminal
+    - todo
+    - tts
+    - vision
+    - web
+known_plugin_toolsets:
+  cli:
+    - a2a
+known_builtin_toolsets:
+  cli:
+    - browser
+    - clarify
+    - code_execution
+    - computer_use
+    - connections
+    - context_engine
+    - cronjob
+    - delegation
+    - discord
+    - discord_admin
+    - file
+    - homeassistant
+    - image_gen
+    - memory
+    - session_search
+    - skills
+    - spotify
+    - stt
+    - terminal
+    - todo
+    - tts
+    - video
+    - video_gen
+    - vision
+    - web
+    - x_search
+    - yuanbao
+compression:
+  threshold: 0.6
+
+# ── Security ──────────────────────────────────────────────────────────
+# Secret redaction is ON by default — strings that look like API keys,
+# tokens, and passwords are masked in tool output, logs, and chat
+# responses before the model or user ever sees them. Set redact_secrets
+# to false to disable (e.g. when developing the redactor itself).
+# tirith pre-exec scanning is enabled by default when the tirith binary
+# is available. Configure via security.tirith_* keys or env vars
+# (TIRITH_ENABLED, TIRITH_BIN, TIRITH_TIMEOUT, TIRITH_FAIL_OPEN).
+#
+# security:
+#   redact_secrets: true
+#   tirith_enabled: true
+#   tirith_path: "tirith"
+#   tirith_timeout: 5
+#   tirith_fail_open: true
+
+# ── Fallback Model ────────────────────────────────────────────────────
+# Automatic provider failover when primary is unavailable.
+# Uncomment and configure to enable. Triggers on rate limits (429),
+# overload (529), service errors (503), or connection failures.
+#
+# Supported providers:
+#   openrouter   (OPENROUTER_API_KEY)  — routes to any model
+#   openai-codex (OAuth — hermes auth) — OpenAI Codex
+#   nous         (OAuth — hermes auth) — Nous Portal
+#   zai          (ZAI_API_KEY)         — Z.AI / GLM
+#   kimi-coding  (KIMI_API_KEY)        — Kimi / Moonshot
+#   kimi-coding-cn (KIMI_CN_API_KEY)   — Kimi / Moonshot (China)
+#   minimax      (MINIMAX_API_KEY)     — MiniMax
+#   minimax-cn   (MINIMAX_CN_API_KEY)  — MiniMax (China)
+#   bedrock      (AWS IAM / boto3)     — AWS Bedrock (Converse API)
+#
+# For custom OpenAI-compatible endpoints, add base_url and key_env.
+#
+# fallback_model:
+#   provider: openrouter
+#   model: anthropic/claude-sonnet-4
+telemetry:
+  shared_metrics:
+    enabled: true
+    send: true

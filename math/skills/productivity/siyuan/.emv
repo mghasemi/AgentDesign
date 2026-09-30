@@ -1,0 +1,6 @@
+# Redacted for distribution: original key names preserved, values replaced.
+# Fill in your own credentials before use.
+# SiYuan access for the math profile (auto-loaded by siyuan_tool.py)
+SIYUAN_URL=REPLACE_ME
+SIYUAN_TOKEN=REPLACE_ME
+SIYUAN_NOTEBOOK=REPLACE_ME

@@ -1,0 +1,277 @@
+{
+  "jobs": [
+    {
+      "id": "bef55ae4c734",
+      "name": "arXiv",
+      "prompt": "Search arXiv for new articles published in the past two weeks in the following topics:\n  - Moment Problem,\n  - Real Algebra,\n  - Real Algebraic Geometry,\n  - Positivity Certificates,\n  - Polynomial Optimization\nThe eligible articles must be in the overlap of at least two of the above topics.\nList the new articles, a summary of the abstract, authors, and a link to the article. Save the output as a markdown file indicating the date that the task is completed in '/home/YOUR-USER/Code/Python/Cron'. Then push it into SiYuan under the Cron Notebook.\n\n## SiYuan push — VERIFY, do not assume success\nThe SiYuan instance REQUIRES an access token (configured in the siyuan skill's `.emv`). If the token is missing or rotated, every data endpoint returns `401 Auth failed [session]` and the push silently does nothing. To make a future auth regression visible instead of silent:\n\n1. Push the report into the **Cron** notebook (id `REPLACE_ME`) via the siyuan skill, e.g. `create-doc` with a date-stamped path like `/arXiv/arxiv_scan_YYYY-MM-DD`.\n2. Capture the returned block id / document path from the create response.\n3. VERIFY the push actually landed: re-read it back (e.g. `search` for the doc title, or query the block by id) and confirm `code:0` with the expected content present. A create that returns `code:0` but cannot be read back is a failure.\n4. In your final response, state the push status explicitly:\n   - On success: `SiYuan push: OK — <doc path>, block <id>, verified by read-back`.\n   - On failure: `SiYuan push: FAILED — <exact error, e.g. 401 Auth failed [session]>` and DO NOT claim success. Do not let a failed push be reported as a normal digest.\n\nIf the push fails on auth, that is the primary thing to surface — it means the `.emv` token needs updating.\n\n## File-reading guardrails (MANDATORY)\nInspect file size before reading: use `ls -lah` or `wc -l`/`wc -c`. For files larger than ~200 lines or ~50KB, avoid full `read_file` calls. Prefer chunked reads with `offset`, or shell tools (`sed`, `head`, `tail`, `grep`) via `terminal`. Do not call `read_file` on the same path with the same parameters more than twice. If a read returns unchanged content, change strategy instead of retrying.",
+      "skills": [
+        "arxiv",
+        "siyuan"
+      ],
+      "skill": "arxiv",
+      "model": "qwen3.6-27b-mtp",
+      "provider": "lmstudio",
+      "provider_snapshot": null,
+      "model_snapshot": null,
+      "base_url": null,
+      "script": null,
+      "no_agent": false,
+      "context_from": null,
+      "schedule": {
+        "kind": "interval",
+        "minutes": 10080,
+        "display": "every 10080m"
+      },
+      "schedule_display": "every 10080m",
+      "repeat": {
+        "times": null,
+        "completed": 19
+      },
+      "enabled": true,
+      "state": "scheduled",
+      "paused_at": null,
+      "paused_reason": null,
+      "created_at": "2026-07-02T20:57:11.264501-06:00",
+      "next_run_at": "2026-10-03T22:10:10.891531-06:00",
+      "last_run_at": "2026-09-26T22:10:10.891531-06:00",
+      "last_status": "ok",
+      "last_error": null,
+      "last_delivery_error": null,
+      "deliver": "local",
+      "origin": null,
+      "enabled_toolsets": [
+        "web",
+        "terminal",
+        "file"
+      ],
+      "workdir": null,
+      "profile": "math",
+      "fire_claim": null,
+      "toast_notifications": true,
+      "failure_streak": 0,
+      "last_dispatch": {
+        "scheduled_at": "2026-09-26T21:09:06.527515-06:00",
+        "dispatched_at": "2026-09-26T21:09:58.214399-06:00",
+        "lateness_seconds": 51.7,
+        "kind": "on_time"
+      }
+    },
+    {
+      "id": "a4133cc5e587",
+      "name": "Wiki Ingestion Worker (4am/4pm)",
+      "prompt": "Wiki ingestion worker — pick one unprocessed article from PocketBase and ingest it into the wiki.\n\n## Important auth details for PocketBase v0.39+\n- Auth endpoint: POST http://YOUR-HOST:8090/api/collections/_superusers/auth-with-password (note underscore prefix!)\n- Request body: {\"identity\": \"YOUR-EMAIL\", \"password\": \"BMW518@ibm\"}\n- Token file: /home/YOUR-USER/.hermes/profiles/math/home/YOUR-USER.txt\n\n## Steps\n\n1. **Authenticate and check for pending articles**:\n```python\nimport urllib.request, json\nwith open(\"/home/YOUR-USER/.hermes/profiles/math/home/YOUR-USER.txt\") as f:\n    token = f.read().strip()\n# Query pending articles (ingested=false, sorted oldest first)\nreq = urllib.request.Request(\"http://YOUR-HOST:8090/api/collections/wiki_ingestion/records?filter=(ingested=False)&sort=date_added&perPage=500\")\nreq.add_header(\"Authorization\", token)\nwith urllib.request.urlopen(req, timeout=15) as resp:\n    data = json.loads(resp.read().decode())\nitems = data.get(\"items\", [])\n```\nIf the list is empty, output \"No pending articles.\" and stop. If the auth token is expired, re-authenticate:\n```python\nreq = urllib.request.Request(\"http://YOUR-HOST:8090/api/collections/_superusers/auth-with-password\",\n    data=json.dumps({\"identity\":\"YOUR-EMAIL\",\"password\":\"BMW518@ibm\"}).encode(),\n    headers={\"Content-Type\":\"application/json\"})\nwith urllib.request.urlopen(req, timeout=15) as resp:\n    token = json.loads(resp.read().decode())[\"token\"]\nwith open(\"/home/YOUR-USER/.hermes/profiles/math/home/YOUR-USER.txt\",\"w\") as f:\n    f.write(token)\n```\n\n2. **Pick the first (oldest) pending article**. Note its `id`, `source_url`, `source_type` (pdf/arxiv/webpage), and `title`.\n\n3. **Extract content based on source type:**\n   - **arxiv**: Use web_extract to pull the abstract + full text. Download PDF via ar5iv or similar if needed.\n   - **webpage**: Use web_extract to get clean markdown from the URL.\n   - **pdf**: Read the PDF file at the local path using pdf-extract-lite or pymupdf.\n\n4. **Create wiki pages per SCHEMA.md** at `/home/YOUR-USER/Code/wiki/`:\n   - Read `/home/YOUR-USER/Code/wiki/SCHEMA.md` for frontmatter requirements and naming conventions.\n   - Create a `raw/` article file: `wiki/raw/[slug].md` with sha256 of source, full extracted content, and proper frontmatter (`type: raw`).\n   - Identify key entities/concepts from the article and create individual pages in `entity/` or `concept/` directories. Each page must have proper YAML frontmatter (title, created, updated, type, tags, related).\n   - Cross-reference between new pages using `[[wikilinks]]` and frontmatter `related:` arrays.\n\n5. **Update index.md** at `/home/YOUR-USER/Code/wiki/index.md` to include the new article under the appropriate category section.\n\n6. **Mark as processed in PocketBase:**\n```python\nfrom datetime import date\ndata = {\"ingested\": True, \"date_processed\": str(date.today())}\nreq = urllib.request.Request(f\"http://YOUR-HOST:8090/api/collections/wiki_ingestion/records/[RECORD_ID]\", data=json.dumps(data).encode(), method=\"PATCH\")\nreq.add_header(\"Authorization\", token)\nreq.add_header(\"Content-Type\", \"application/json\")\nwith urllib.request.urlopen(req, timeout=15) as resp:\n    print(resp.read().decode()[:200])\n```\n\n7. **Append to wiki log** at `/home/YOUR-USER/Code/wiki/log.md`:\n```\n## [YYYY-MM-DD] ingest | Article Title\n- Source: source_url\n- Type: pdf/arxiv/webpage\n- Pages created: list of new files\n- Status: completed\n```\n\n8. **Verify links work**: `python3 /home/YOUR-USER/.hermes/profiles/math/scripts/wiki_lint.py`\n\n## Output\nDeliver a concise summary: article title, source type, pages created, lint warnings.\n\n## File-reading guardrails (MANDATORY)\nInspect file size before reading: use `ls -lah` or `wc -l`/`wc -c`. For files larger than ~200 lines or ~50KB, avoid full `read_file` calls. Prefer chunked reads with `offset`, or shell tools (`sed`, `head`, `tail`, `grep`) via `terminal`. Do not call `read_file` on the same path with the same parameters more than twice. If a read returns unchanged content, change strategy instead of retrying.",
+      "skills": [],
+      "skill": null,
+      "model": "qwen3.8-27b",
+      "provider": "lmstudio",
+      "provider_snapshot": null,
+      "model_snapshot": null,
+      "base_url": null,
+      "script": null,
+      "no_agent": false,
+      "context_from": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 4,16 * * *",
+        "display": "0 4,16 * * *"
+      },
+      "schedule_display": "0 4,16 * * *",
+      "repeat": {
+        "times": null,
+        "completed": 72
+      },
+      "enabled": false,
+      "state": "paused",
+      "paused_at": "2026-08-31T14:13:12.110738-06:00",
+      "paused_reason": null,
+      "created_at": "2026-07-30T15:35:27.670250-06:00",
+      "next_run_at": "2026-08-31T16:00:00-06:00",
+      "last_run_at": "2026-08-31T04:01:26.080535-06:00",
+      "last_status": "ok",
+      "last_error": null,
+      "last_delivery_error": null,
+      "deliver": "local",
+      "origin": null,
+      "enabled_toolsets": [
+        "web",
+        "terminal",
+        "file"
+      ],
+      "workdir": "/home/YOUR-USER/Code/wiki",
+      "fire_claim": null,
+      "profile": "math",
+      "toast_notifications": true,
+      "failure_streak": 0
+    },
+    {
+      "id": "33d81e76acfe",
+      "name": "Wiki Maintenance (bi-weekly)",
+      "prompt": "Bi-weekly wiki maintenance — lint, deduplicate, check contradictions.\n\n## Steps\n\n1. **Run the linter:** `python3 /home/YOUR-USER/.hermes/profiles/math/scripts/wiki_lint.py` and capture its full output.\n\n2. **Check for duplicate content** by scanning all `.md` files in `/home/YOUR-USER/Code/wiki/` (excluding `raw/`, `node_modules/`, `.vitepress/`) for pages with >80% text overlap:\n   - Read each file's body (skip frontmatter)\n   - Compare pairwise using simple Jaccard similarity on sentence sets\n   - Flag pairs above 0.8 threshold as potential duplicates\n\n3. **Check for contradictions** by scanning frontmatter `contradictions:` fields and `contested: true` flags across all pages, then reading those pages to summarize what the actual disagreement is.\n\n4. **Verify index.md completeness** — ensure every content page appears in `/home/YOUR-USER/Code/wiki/index.md`.\n\n5. **Check for stale pages** (>90 days since last update) and list them.\n\n6. **Append results to wiki log** at `/home/YOUR-USER/Code/wiki/log.md`:\n```\n## [YYYY-MM-DD] maintenance | Bi-weekly audit\n- Pages scanned: N\n- Lint issues: X high, Y medium, Z low\n- Potential duplicates: list or \"none\"\n- Contradictions flagged: list or \"none\"\n- Stale pages: count\n```\n\n7. **Deliver a concise report** summarizing findings and any recommended actions.\n\n## File-reading guardrails (MANDATORY)\nInspect file size before reading: use `ls -lah` or `wc -l`/`wc -c`. For files larger than ~200 lines or ~50KB, avoid full `read_file` calls. Prefer chunked reads with `offset`, or shell tools (`sed`, `head`, `tail`, `grep`) via `terminal`. Do not call `read_file` on the same path with the same parameters more than twice. If a read returns unchanged content, change strategy instead of retrying.",
+      "skills": [],
+      "skill": null,
+      "model": "qwen3.6-27b-mtp",
+      "provider": "lmstudio",
+      "provider_snapshot": null,
+      "model_snapshot": null,
+      "base_url": null,
+      "script": null,
+      "no_agent": false,
+      "context_from": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 3 * * 0",
+        "display": "0 3 * * 0"
+      },
+      "schedule_display": "0 3 * * 0",
+      "repeat": {
+        "times": null,
+        "completed": 13
+      },
+      "enabled": true,
+      "state": "scheduled",
+      "paused_at": null,
+      "paused_reason": null,
+      "created_at": "2026-07-30T15:35:56.205020-06:00",
+      "next_run_at": "2026-10-04T03:00:00-06:00",
+      "last_run_at": "2026-09-27T03:11:52.994985-06:00",
+      "last_status": "ok",
+      "last_error": null,
+      "last_delivery_error": null,
+      "deliver": "local",
+      "origin": null,
+      "enabled_toolsets": [
+        "terminal",
+        "file"
+      ],
+      "workdir": "/home/YOUR-USER/Code/wiki",
+      "fire_claim": null,
+      "profile": "math",
+      "toast_notifications": true,
+      "failure_streak": 0,
+      "last_dispatch": {
+        "scheduled_at": "2026-09-27T03:00:00-06:00",
+        "dispatched_at": "2026-09-27T03:00:58.216079-06:00",
+        "lateness_seconds": 58.2,
+        "kind": "on_time"
+      }
+    },
+    {
+      "id": "044a7aa24c2e",
+      "name": "Math Projects Worker",
+      "prompt": "You are a mathematical research agent working on the projects listed in 'projects.csv'. Follow these steps in order:\n\n## Step 1: Choose a project:\n- Choose a random project row from 'projects.csv' whte the field 'num_open_tasks' is not 0, (we'll refer to this as `project_row`).\n- Use the fields from the `project_row` for the next steps.\n\n## Step 2: Find the next actionable task\n- Use `mcp__vikunja__projects_get_by_title` with title in \"vikunja_title\" of `project_row` to get the project ID.\n- Use `mcp__vikunja__tasks_list` with that project ID to list all tasks.\n- Filter out tasks where `done == true`. Also filter out tasks that have a label containing \"review\" (case-insensitive) — those are already marked for review.\n- From the remaining active tasks, pick the one with the earliest due date or highest priority. If no due dates exist, pick the first task in the list order (lowest ID).\n- Record: task_id, title, description, and any labels.\n\n## Step 3: Execute the mathematical task\nRead the task's description carefully. This is a mathematical research/implementation task related to polynomial optimization, real algebraic geometry, or related topics. Work through it rigorously:\n- If it requires formal derivation/proof: write the math in LaTeX notation ($$...$$ for display, $...$ for inline). Use SageMath via `mcp__sagemath__sage_run_script` for symbolic computation when needed.\n- If it requires code/experiments: use the IreneRewrite venv at `/home/YOUR-USER/Code/Python/IreneRewrite/.venv/bin/python3`. Activate it before running any Python experiments.\n- If it requires literature search: check local wiki at `/home/YOUR-USER/Code/wiki/` first, then check the previously created repots at `project_row['folder']`, then use `mcp__zimi__search` for offline archives, and only fall back to web search if needed.\n- Work until you have a concrete result, proof sketch, implementation, or documented finding. Do not stop at a plan — produce actual mathematical/computational work.\n\n## File-reading guardrails (MANDATORY)\nBefore reading any file, inspect its size with `ls -lah` or `wc -l`/`wc -c`. For files larger than ~200 lines or ~50KB, do NOT read them whole with `read_file`. Instead:\n- Use `read_file` with `offset` to inspect in chunks, OR\n- Use shell tools via `terminal`: `sed -n '1,120p' <file>`, `grep -n \"<pattern>\" <file>`,\n  `head`/`tail` for targeted sections.\nNever call `read_file` on the same path with the same parameters more than twice. If a read returns unchanged content, switch tools or query instead of retrying.\n\n## Step 4: Mark the task for review in Vikunja\n- Use `mcp__vikunja__tasks_update` to add a \"review\" label to the completed task (or update its status/notes). Include a brief summary of what was accomplished in the task's description or notes field. Do NOT mark it as done — only mark it for review.\n\n## Step 5: Create a report\n- Write a Markdown report file at `{project_row['folder']}/reports/{task_title}_{YYYYMMDD_HHMM}.md` (sanitize the title for filesystem: replace spaces with underscores, remove special chars).\n- The report should contain:\n  - Task title and Vikunja task ID\n  - Date/time of execution\n  - Summary of work performed\n  - Key mathematical results, derivations, or code outputs\n  - Any blockers, open questions, or follow-up needed\n  - References to files created/modified\n\n## Step 6: Final summary\nAt the end, output a concise Telegram-ready summary (max ~300 words) containing:\n- Task title and ID processed\n- What was accomplished (1-2 sentences)\n- Key result or finding\n- Report file path\n- Any blockers\n\nFormat the final response as a clean Markdown message suitable for Telegram delivery.",
+      "skills": [
+        "vikunja",
+        "sagemath-mcp",
+        "scientific-coding",
+        "math-research-workflow"
+      ],
+      "skill": "vikunja",
+      "model": "qwen3.8-27b",
+      "provider": "lmstudio",
+      "provider_snapshot": null,
+      "model_snapshot": null,
+      "base_url": null,
+      "script": null,
+      "no_agent": false,
+      "monitor_script": null,
+      "monitor_url": null,
+      "monitor_state": null,
+      "context_from": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "20 */2 * * *",
+        "display": "20 */2 * * *"
+      },
+      "schedule_display": "20 */2 * * *",
+      "repeat": {
+        "times": null,
+        "completed": 189
+      },
+      "enabled": false,
+      "state": "paused",
+      "paused_at": "2026-09-08T01:41:56.599493-06:00",
+      "paused_reason": null,
+      "created_at": "2026-08-15T18:16:46.437837-06:00",
+      "next_run_at": "2026-09-08T02:20:00-06:00",
+      "last_run_at": "2026-09-08T00:14:01.337674-06:00",
+      "last_status": "ok",
+      "last_error": null,
+      "last_delivery_error": null,
+      "deliver": "origin,all",
+      "origin": null,
+      "enabled_toolsets": [
+        "web",
+        "terminal",
+        "file",
+        "delegation"
+      ],
+      "workdir": "/home/YOUR-USER/Code/Python/OptimizationInNorm",
+      "fire_claim": {
+        "at": "2026-09-08T01:24:13.355724-06:00",
+        "by": "AMD:3939487:866d4c952199459cbe0ecaf8f6e385e2"
+      },
+      "profile": "math",
+      "toast_notifications": true,
+      "failure_streak": 0,
+      "last_dispatch": {
+        "scheduled_at": "2026-09-08T00:20:00-06:00",
+        "dispatched_at": "2026-09-08T00:20:10.697928-06:00",
+        "lateness_seconds": 10.7,
+        "kind": "on_time"
+      }
+    },
+    {
+      "id": "8f726c3038db",
+      "name": "OptimizationInNorm Daily Synthesis",
+      "prompt": "You are the daily synthesis agent for the OptimizationInNorm research project. Run at 03:30 each morning. Execute these 4 stages in order — do not skip any stage.\n\n## Context\n- Project directory: `/home/YOUR-USER/Code/Python/OptimizationInNorm/`\n- Reports live in: `reports/*.md`\n- Project plan: `AGENTS.md` (phase structure, execution order)\n- Mathematical framework: `literature/framework.md` (conjectures, definitions)\n- Vikunja project ID: 31 (\"OptimizationInNorm\"), 26 tasks across 5 phases (#634–#638 parents, #639–#659 subtasks)\n\n## Stage 1 — Aggregate & Synthesize Reports\n\n1. List all `.md` files in `reports/`. Skip any file whose name starts with `daily_synthesis_` (those are your own prior outputs).\n2. For each remaining report, inspect size first with `ls -lah` or `wc -l`/`wc -c`. For files larger than ~200 lines or ~50KB, do NOT read them whole with `read_file`. Instead use `read_file` with `offset`, or shell tools via `terminal`: `sed -n '1,120p' <file>`, `grep -n \"<pattern>\" <file>`, `head`/`tail` for targeted sections. Extract: task ID reference, phase, key findings, blockers.\n3. Write a daily synthesis report to `reports/daily_synthesis_YYYYMMDD.md` (use today's date) with this structure:\n\n```markdown\n# Daily Synthesis — OptimizationInNorm (YYYY-MM-DD)\n\n## Reports Processed\n| # | Report File | Task ID | Phase | Status |\n|---|------------|---------|-------|--------|\n\n## Key Findings by Phase\n(One subsection per phase that had activity. Summarize mathematical results, derivations, code outputs.)\n\n## Open Questions & Blockers\n(Bullet list of items requiring human attention)\n\n## Strategic Adjustments\n(See Stage 2 below — leave empty if no adjustments needed)\n\n## Vikunja Changes Log\n(See Stage 3 below — log every change made)\n```\n\nFill in each section based on what you read. Be specific about mathematical content — include formulas, theorem statements, conjecture status.\n\n## Stage 2 — Strategic Review\n\n1. Read `AGENTS.md` to understand current phase status and execution order (I → II → III → IV → V).\n2. Read `literature/framework.md` for the mathematical framework and stated conjectures.\n3. Cross-reference each report's findings against:\n   - Stated conjectures in framework.md — was any proven, disproven, or partially validated?\n   - Phase completion status — are all subtasks of a phase done/reviewed? If so, note readiness for next phase.\n   - New mathematical insights not yet captured in the framework\n4. Append findings to the \"Strategic Adjustments\" section of the daily report. Format:\n```markdown\n## Strategic Adjustments\n- [ ] Conjecture X confirmed by report Y → recommend updating framework.md\n- [ ] Phase I subtasks #639–#642 complete → recommend unlocking Phase II\n- [ ] New task needed: [description, phase, parent ID]\n```\n\n**IMPORTANT:** Do NOT edit `literature/framework.md` directly. Only propose changes in the report for human review.\n\n## Stage 3 — Vikunja Maintenance\n\n1. Use `mcp__vikunja__tasks_list` with project_id=31 to get current task state.\n2. For each task that has a corresponding report from today's batch:\n   - If the report shows the work is complete and verified → remove any `review` label, mark `done=true`. Use `mcp__vikunja__tasks_update`.\n   - If the report shows partial progress or blockers → keep active, update description with a one-line summary of what was accomplished. Append to existing description, don't overwrite.\n3. Check each phase parent task (#634–#638): if ALL its subtasks are done, mark the parent for review (add `review` label).\n4. If Stage 2 recommended new tasks → create them via `mcp__vikunja__tasks_create` under the correct phase parent. Set priority matching the phase's convention.\n5. Log every Vikunja change in the daily report's \"Vikunja Changes Log\" section:\n```markdown\n## Vikunja Changes Log\n| Task ID | Action | Details |\n|---------|--------|---------|\n| #639    | Marked done | GKM topology notes completed and verified |\n| #640    | Description updated | Added summary of CGIK criterion formalization |\n```\n\n**Caution:** If a Vikunja API call fails (e.g., label doesn't exist), log the error in the report and continue — do not abort.\n\n## Stage 4 — Telegram Summary\n\nAfter all stages complete, output your final response as a clean Markdown message (max ~300 words):\n\n```markdown\n## 📊 OptimizationInNorm Daily Synthesis (YYYY-MM-DD)\n\n**Reports processed:** N reports from Phase(s) X\n**Key finding:** [one sentence summarizing the most important mathematical result]\n**Vikunja changes:** M tasks updated, K new tasks created\n**Phase status:** Phase I: X/Y complete | Phase II: pending | ...\n**Daily report:** `reports/daily_synthesis_YYYYMMDD.md`\n**Action needed:** [yes — what requires human attention / no]\n```\n\nThis message is delivered via Telegram. Keep it scannable and actionable.\n\n## Error Handling\n- If no reports exist to process, write a minimal daily synthesis noting \"no activity this cycle\" and deliver that as the summary.\n- If Vikunja is unreachable, log the error in the report and skip Stage 3. Continue with Stages 1, 2, 4.\n- Never fabricate mathematical results. If you cannot verify a claim from the reports, mark it \"unverified\" in the synthesis.\n\n## File-reading guardrails (MANDATORY)\nInspect file size before reading: use `ls -lah` or `wc -l`/`wc -c`. For files larger than ~200 lines or ~50KB, avoid full `read_file` calls. Prefer chunked reads with `offset`, or shell tools (`sed`, `head`, `tail`, `grep`) via `terminal`. Do not call `read_file` on the same path with the same parameters more than twice. If a read returns unchanged content, change strategy instead of retrying.",
+      "skills": [
+        "vikunja",
+        "math-research-workflow"
+      ],
+      "skill": "vikunja",
+      "model": "qwen3.8-27b",
+      "provider": "lmstudio",
+      "provider_snapshot": null,
+      "model_snapshot": null,
+      "base_url": null,
+      "script": null,
+      "no_agent": false,
+      "monitor_script": null,
+      "monitor_url": null,
+      "monitor_state": null,
+      "context_from": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "30 3 * * *",
+        "display": "30 3 * * *"
+      },
+      "schedule_display": "30 3 * * *",
+      "repeat": {
+        "times": null,
+        "completed": 8
+      },
+      "enabled": false,
+      "state": "paused",
+      "paused_at": "2026-08-23T18:41:19.591625-06:00",
+      "paused_reason": null,
+      "created_at": "2026-08-16T00:55:56.921152-06:00",
+      "next_run_at": "2026-08-24T03:30:00-06:00",
+      "last_run_at": "2026-08-23T04:00:39.193588-06:00",
+      "last_status": "ok",
+      "last_error": null,
+      "last_delivery_error": null,
+      "deliver": "origin,all",
+      "origin": null,
+      "enabled_toolsets": [
+        "terminal",
+        "file"
+      ],
+      "workdir": "/home/YOUR-USER/Code/Python/OptimizationInNorm",
+      "fire_claim": null,
+      "profile": "math",
+      "toast_notifications": true,
+      "failure_streak": 0
+    }
+  ],
+  "updated_at": "2026-09-27T03:11:52.995674-06:00"
+}

@@ -165,7 +165,7 @@ if 'math' in results and 'librarian' in results:
         }
     }
 
-output_path = Path('/home/mehdi/Code/Professional/AgentDesign/data/profile_comparison.json')
+output_path = Path(__file__).resolve().parent.parent / 'data' / 'profile_comparison.json'
 with open(output_path, 'w') as f:
     json.dump(results, f, indent=2, default=str)
 
