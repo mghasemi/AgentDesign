@@ -311,15 +311,121 @@ and \texttt{pdflatex} comes from \texttt{/usr/bin} --- so the profile home is no
 computation environment despite looking like one.
 
 %=====================================================================
+%=====================================================================
+\section{Folder Structure}\label{sec:folders}
+
+Three directory levels carry the design: the shared Hermes root, the two profile trees, and the
+per-project binding file. Every tree and count below was read from the live filesystem in September
+2026; the profile skeleton in Listing~\ref{lst:profiletree} is annotated with the exact set
+difference between the two trees (48 shared entries, 40 math-only, 4 librarian-only).
+
+\subsection*{Shared root}
+
+The \mono{\textasciitilde/.hermes/} root holds everything that is not profile-scoped. Two entries
+are load-bearing for the coupling analysis: \mono{mcp-servers/} holds the single Python environment
+that every MCP server of every profile runs in, and \mono{skills/} is the shared pool that both
+profiles fall back to for both skills and plugins.
+
+\begin{lstlisting}[label=lst:hermesroot]
+~/.hermes/                          # shared Hermes root (105 entries)
+  config.yaml                       # global defaults; profiles override
+  profiles/                         # one directory per profile (math, librarian, advisor, ...)
+  skills/                           # shared skill pool: 17 categories
+  plugins/                          # shared plugin installs: vikunja, wiki-browser, hermes-achievements
+  desktop-plugins/                  # desktop plugin surfaces: vikunja, wiki-browser
+  plugin-data/                      # per-plugin persistent state: hermes-achievements
+  mcp-servers/.venv/                # ONE Python env for all 13 MCP servers
+  memories/  sessions/  state.db    # memory files, session store, global state
+  kanban/  kanban.db                # kanban board + dispatcher state
+  cron/  hooks/  agent-hooks/       # scheduling and lifecycle hooks
+  bin/  node/  webui/  tools/       # runtime binaries, desktop build, CLI tools
+\end{lstlisting}
+
+\subsection*{Profile tree: the two profiles side by side}
+
+The math profile is a superset in structure (88 entries against 52); the design-relevant entries
+are shown below. Note that \mono{scripts/} --- the MCP adapter directory --- exists only on the
+math side, and \mono{home/} is populated only there (5.9\,GB of toolchain against an empty
+directory in the librarian). Those two facts are the structural root of the path coupling in
+Section~\ref{sec:mcp}.
+
+\begin{lstlisting}[label=lst:profiletree]
+profiles/math/  (88 entries)               profiles/librarian/  (52 entries)
+  config.yaml   profile.yaml                 config.yaml   profile.yaml
+  .env                                       .env
+  skills/       24 top-level dirs            skills/       23 top-level dirs
+  plugins/      vikunja, wiki-browser,       plugins/      empty (borrows shared pool)
+                hermes-android (disabled)
+  desktop-plugins/  vikunja, wiki-browser    desktop-plugins/     [absent]
+  scripts/      mcp_cli_adapter.py + 8 .py   scripts/             [absent]
+  home/         5.9 GB toolchain sandbox     home/                (empty)
+  scratchpad/   failure scratchpad           scratchpad/          [absent]
+  cron/  hooks/  memories/  sandboxes/       cron/  hooks/  memories/  sandboxes/
+  sessions/  workspace/  cache/  logs/       sessions/  workspace/  cache/  logs/
+  backups/  state.db  SOUL.md                backups/  state.db  SOUL.md
+  telemetry/            [absent]             telemetry/           (sender on)
+  vault/                [absent]             vault/               (credential store)
+  state.db.retired-wal-* (6 files)           ---
+  ... 40 math-only entries total             ... 4 librarian-only entries total
+\end{lstlisting}
+
+The librarian's four exclusive entries are \mono{telemetry/}, \mono{vault/} and two state-database
+maintenance locks; math's exclusive forty are dominated by runtime residue (gateway sockets, backup
+snapshots, retired write-ahead logs) plus the three design-relevant directories listed above.
+
+\subsection*{Skill tree layout}
+
+Both profiles carry the same 24-directory layout except for the single extra top-level skill in
+math; activation, not layout, is what differs.
+
+\begin{lstlisting}[label=lst:skilltree]
+profiles/<profile>/skills/          # 24 top-level dirs (math) / 23 (librarian)
+  research/  productivity/  mlops/            # 9 populated categories; each holds
+  software-development/  github/  devops/     #   <skill>/SKILL.md with optional
+  web/  autonomous-ai-agents/  social-media/  #   scripts/ and references/
+  apple/  creative/  data-science/  email/    # 9 empty category shells (reserved,
+  environment/  media/  note-taking/          #   no SKILL.md; used by the curator
+  mathematical-research/  smart-home/         #   as retirement targets)
+  differential-sdp/  ghasemi-latex-style/     # 6 top-level skills in math,
+  hermes-plugin-management/  semantic-scholar/#   5 in librarian
+  workspace-doc-hierarchy/  irene-rewrite-dev/  [math only]
+  .archive/                    # 26 (math) / 27 (librarian) retired skill dirs
+  .curator_ledger.jsonl  .curator_state/  .curator_suppressed/
+  .bundled_manifest  .usage.json  .hub/  .locks/
+\end{lstlisting}
+
+\subsection*{This document's own folder}
+
+\begin{lstlisting}[label=lst:agentdesign]
+AgentDesign/
+  agent_design.tex                  # this document (source of record)
+  agent_design.pdf                  # compiled output
+  AGENTS.md                         # project guidance for future sessions
+  cpistuff/                         # CPI LaTeX template: cpi.sty + logos
+  t1ggm.fd  ts1ggm.fd               # Garamond T1 declarations (compile prerequisite)
+  data/profile_comparison.json      # machine-readable extraction (secret values redacted)
+  references/extract_profile_data.py
+  references/skill_inventory.md     # per-profile skill inventory
+  .gitignore
+\end{lstlisting}
+
+Reproducing the build requires one environment step beyond the template: the CPI style loads the
+Garamond T1 fonts, which are not part of a stock TeX Live installation. They are installed
+per-user (no root) under \mono{\textasciitilde/texmf/} --- \mono{ggm*.tfm} in \mono{fonts/tfm/ggm/},
+\mono{ggm*.vf} in \mono{fonts/vf/ggm/}, \mono{ggm*.pfb} in \mono{fonts/type1/ggm/}, \mono{ggm.map}
+in \mono{dvips/ggm/}, then \mono{mktexlsr \textasciitilde/texmf}. Without it the build fails at the
+first page with a missing-font error rather than a document error.
+
 \section{Skill System: Design for General Math Projects}\label{sec:skills}
 
 Skills are the unit of reusability. Each \mono{SKILL.md} carries a trigger description in its
 frontmatter, an imperative body, optional scripts, and --- where needed --- a co-located
 credential file (\mono{.emv}; two exist under math --- \mono{skills/productivity/siyuan/.emv}
 and \mono{plugins/vikunja/dashboard/.emv} --- and one under librarian). The catalog is shared
-between the two profiles (same 24 top-level skill directories: nine sub-skill categories, six
-top-level skills in math / five in librarian, and nine empty category shells); only activation
-differs. Table~\ref{tab:skillcats} summarizes by category; \textbf{E}/\textbf{D}/$-$ = enabled / disabled / absent per profile
+between the two profiles: \textbf{24 top-level skill directories in math, 23 in librarian}. Both
+carry the same nine populated categories and nine empty category shells, and math has six top-level
+skills against the librarian's five --- the difference being \mono{irene-rewrite-dev}, an active
+top-level skill in math and a curator tombstone in the librarian. Only activation differs. Table~\ref{tab:skillcats} summarizes by category; \textbf{E}/\textbf{D}/$-$ = enabled / disabled / absent per profile
 (counts from \mono{references/skill\_inventory.md}).
 
 \begin{table}[H]
@@ -470,6 +576,40 @@ The \textbf{four integration channels} a skill may use, in the preference order 
     \item \emph{Local binaries from the sandbox home} (SageMath, Lean 4 via elan/rustup, TeXLive)
     for computation and compilation that must stay on-machine.
 \end{enumerate}
+
+\subsection*{Plugins}
+
+Plugins are the third extension channel beside skills and MCP servers, and their configuration is
+byte-identical in the two profiles.
+
+\begin{table}[H]
+\centering\small
+\caption{Plugin inventory (live, September 2026).}\label{tab:plugins}
+\begin{tabularx}{\textwidth}{@{}l X@{}}
+\toprule
+Element & State \\
+\midrule
+\mono{plugins.enabled} & \mono{vikunja}, \mono{wiki-browser} --- identical in both profiles \\
+\mono{plugins.disabled} & \mono{hermes-android}, \mono{spotify} --- identical in both profiles \\
+\mono{plugins.entries} & \mono{hermes-android} and \mono{wiki-browser}, both \mono{allow\_tool\_override: false} \\
+Profile \mono{plugins/} dir & math: \mono{hermes-android}, \mono{vikunja}, \mono{wiki-browser}; librarian: \textbf{empty} \\
+Shared installs & \mono{\textasciitilde/.hermes/plugins/}: \mono{vikunja}, \mono{wiki-browser}, \mono{hermes-achievements} \\
+Desktop surfaces & \mono{desktop-plugins/} (shared and math): \mono{vikunja}, \mono{wiki-browser} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Three facts matter for the abstraction design. First, the librarian enables both plugins while its
+own \mono{plugins/} directory is empty: plugin resolution falls back to the shared pool exactly as
+skill resolution does, so the librarian's plugin capability is entirely borrowed --- and, as with
+skills, the coupling is by name rather than by manifest. Second, \mono{spotify} is listed as
+disabled in both profiles although no installed copy exists in either profile tree or in the shared
+pool; the name matches an upstream catalog plugin inside the Hermes source tree, so the entry is a
+no-op rather than a broken install --- the same class of residue as the curator tombstones noted in
+Section~\ref{sec:skills}. Third, \mono{hermes-android} sits in math's \mono{plugins/} directory but
+is disabled, while the plugin that carries credentials (\mono{vikunja}, whose dashboard ships a
+co-located \mono{.emv} file) is enabled in both profiles: plugin credentials, like skill
+credentials, live inside the tree that ships them, not in a profile-level secret store.
 
 %=====================================================================
 \section{The Research Workflow}\label{sec:workflow}
