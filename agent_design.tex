@@ -1127,6 +1127,190 @@ the math profile's tree. This is the cross-profile coupling of Section~\ref{sec:
 bridge's side: the bridge is the single largest thing that would break if the math profile were moved
 or deleted.
 
+\section{The Skill Surface}\label{app:skills}
+
+Section~\ref{sec:skills} described the skill catalog as a design; this appendix enumerates it.
+A skill is a directory holding a \mono{SKILL.md} --- frontmatter that states when the skill applies,
+then an imperative body --- together with any scripts, reference notes and credential files it needs.
+Skills are grouped into category directories, and both profiles carry the same catalog: the same
+categories, the same entries, and the same two profile-exclusive additions noted at the end. What
+differs between the profiles is only which entries are switched on.
+
+The first table below is the surface the designated workflow actually uses, stage by stage; the
+tables after it are the complete catalog, grouped as the loader sees it, with the activation state of
+each entry in the two profiles.
+
+\subsection{The designated workflow surface}
+
+The workflow of Section~\ref{sec:workflow} names the skills it relies on, and the table below
+reproduces that relationship: for each stage, the skills it invokes and what they contribute.
+
+\begin{table}[htbp]
+\centering\small
+\caption{The skills the designated workflow invokes, by stage.}\label{tab:skillstages}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}p{3.9cm} X@{}}
+\toprule
+\textbf{Stage} & \textbf{Skills} & \textbf{What they contribute} \\
+\midrule
+1. Problem decomposition & vikunja, mathematical-research & The ledger skill opens the task and the hypothesis tree; the research skill carries the discipline of framing a conjecture before attacking it \\
+2. Literature synthesis & lightrag, academic-research-hub, arxiv, semantic-scholar, searxng, zimi, grounded-citations, literature-project-mapping & Retrieval runs local-first --- the graph-RAG lake, then bibliographic search, then the open web and the offline archive --- and every recorded claim is grounded in a cited source; the mapping skill links what is found to the projects that need it \\
+2. Literature synthesis (ingestion) & llm-wiki, wiki-pipeline, wiki-maintenance & The intake side: documents are queued, ingested into the graph and the wiki, and the wiki is periodically linted and repaired \\
+3. Computation & sympy-mcp, sagemath-mcp, exact-symbolic-gate-scripts, wolfram-alpha, scientific-coding & Exact symbolic work first, deterministic gate scripts for anything that must be re-runnable, an independent implementation as cross-check, and a resource-capped sandbox for numerics \\
+4. Formal verification & lean4, lean4-goedel-agent & The verification pipeline: formalise an informal statement, then check it against a pinned library project and diff the result against the informal claim \\
+5. Manuscript production & latex-manuscript, ghasemi-latex-style, math-article-revision, project-bib, research-paper-writing & Compilation and structural checks, the house style, the revision workflow, bibliography management, and the writing conventions of the field \\
+6. Reflection and close-out & workspace-doc-hierarchy, hermes-agent-skill-authoring, agent-tool-diagnostics & Status is synchronised across the project's documentation, a recurring failure becomes a skill rule rather than a session note, and a tool that looks available but is not is diagnosed rather than worked around \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{Research skills: retrieval, the knowledge base and the workflow itself.}\label{tab:skillsresearch1}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.5cm} X >{\raggedright\arraybackslash}p{2.3cm}@{}}
+\toprule
+\textbf{Skill} & \textbf{Role in the workflow} & \textbf{Activation} \\
+\midrule
+math-research-workflow & The designated six-stage pipeline for a math project: decomposition, literature, computation, verification, manuscript, reflection, each gated & both profiles \\
+academic-research-hub & Search and download across academic sources; the general entry point when a specific identifier is not known & both profiles \\
+arxiv & Direct arXiv search by keyword, author, category or identifier & both profiles \\
+lightrag & Queries over the ingested literature lake through the graph-RAG service & both profiles \\
+searxng & Live federated web search through the local metasearch instance & both profiles \\
+zimi & Offline encyclopedia and archive lookups for grounding before any live search & both profiles \\
+grounded-citations & The rule that every recorded claim carries a verifiable source, and the procedure for recording it & both profiles \\
+literature-project-mapping & Links a paper found in the wiki to the projects that should act on it & both profiles \\
+llm-wiki & Builds and queries the interlinked markdown knowledge base & both profiles \\
+wiki-pipeline & Document intake through the queue: capture, ingest, index & both profiles \\
+wiki-maintenance & Periodic linting and repair of the knowledge base: orphans, broken links, stale entries & both profiles \\
+rss-feeds & Feed reading and discovery, for monitoring sources that publish on a schedule & disabled in both \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{Research skills: computation, verification and research craft.}\label{tab:skillsresearch2}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.5cm} X >{\raggedright\arraybackslash}p{2.3cm}@{}}
+\toprule
+\textbf{Skill} & \textbf{Role in the workflow} & \textbf{Activation} \\
+\midrule
+sympy-mcp & Exact symbolic mathematics: solving equations, derivatives, integrals, simplification, matrices & math only \\
+sagemath-mcp & Advanced algebraic structures, arbitrary-precision arithmetic, number fields, and arbitrary scripts & math only \\
+exact-symbolic-gate-scripts & The discipline of writing deterministic, re-runnable exact gate scripts, so a claim can be re-checked without a language model & math only \\
+wolfram-alpha & Concise computational answers and an independent implementation to cross-check a local result & both profiles \\
+scientific-coding & Python experiments, simulations and plots inside a CPU- and memory-capped sandbox & math only \\
+lean4 & Checking Lean files, searching the library, inspecting goal states, attempting a proof & math only \\
+lean4-goedel-agent & The formalisation pipeline: informal statement, formal statement, then a fidelity diff between the two & math only \\
+mathematical-research & The conduct of research itself: forming conjectures, reviewing the literature, attempting proofs & both profiles \\
+theoretical-research-phase & Phases that need no computation: framing, planning and conceptual work & both profiles \\
+math-article-revision & The multi-edit revision workflow for a mathematical manuscript & both profiles \\
+research-paper-writing & Writing conventions and the submission workflow for conference papers & both profiles \\
+agent-tool-diagnostics & Diagnosing a tool that appears available in the runtime but does not work & both profiles \\
+hermes-tool-edge-cases & Known tool quirks and their workarounds: editing LaTeX, reading long files, terminal transport of long commands & both profiles \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{Productivity and operations skills: the knowledge stores, the manuscript toolchain and the local stack.}\label{tab:skillsprod}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.5cm} X >{\raggedright\arraybackslash}p{2.3cm}@{}}
+\toprule
+\textbf{Skill} & \textbf{Role in the workflow} & \textbf{Activation} \\
+\midrule
+vikunja & Task ledger operations: projects, tasks, statuses, due dates and comments --- the workflow's continuity layer & both profiles \\
+siyuan & Block-level notes: creating, reading, searching and updating documents and equation blocks & both profiles \\
+zotero & Bibliography: searching the library, adding entries by identifier, exporting BibTeX & both profiles \\
+latex-manuscript & Manuscript production: compilation, structure-aware edit checks, glossary, notation audit, diff-patch & both profiles \\
+ocr-and-documents & Text extraction from PDFs and scans, including the OCR path & both profiles \\
+project-bib & Per-project bibliography management and synchronisation & math only \\
+session-librarian & Organising the session record: locating, renaming, archiving and pruning sessions & math only \\
+calibre & Ebook library management and format conversion & disabled in both \\
+calibre-library-ingestion & Ingesting an existing library into the knowledge base & librarian only \\
+djvu-to-pdf & Format conversion for scanned books & librarian only \\
+pocketbase & API operations on the intake queue that feeds the wiki pipeline & both profiles \\
+lmstudio-configuration & Troubleshooting the local inference server: duplicate models, paths, service state & both profiles \\
+dsdp-extension-workflow & Extending the numerical backend's relaxation classes without breaking existing bounds & math only \\
+llama-cpp & Local inference through a second runtime, kept as a fallback & disabled in both \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{Engineering, automation and access skills.}\label{tab:skillseng}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.5cm} X >{\raggedright\arraybackslash}p{2.3cm}@{}}
+\toprule
+\textbf{Skill} & \textbf{Role in the workflow} & \textbf{Activation} \\
+\midrule
+hermes-agent & Operating and configuring the agent runtime itself: profiles, skills, plugins, schedules & both profiles \\
+hermes-agent-skill-authoring & Writing a new skill to the house format, so a lesson becomes reusable procedure & both profiles \\
+hermes-desktop-troubleshooting & Diagnosing the desktop application: panes, updates, rendering & both profiles \\
+plan & Writing a plan to disk as an artifact, without executing it & both profiles \\
+subagent-driven-development & Executing a plan through delegated workers with a review gate on each stage & both profiles \\
+dynamic-workflow & Orchestrating large fan-out work as a plan expressed in code & both profiles \\
+inspecting-hermes-desktop-dom & Reading the live desktop interface through the debugging protocol & math only \\
+sdlc-review & Reviewing handoffs and routing verified outcomes & math only \\
+github & Repository operations through the command line: pull requests, issues, reviews & math only \\
+github-repo-management & Cloning, creating and forking repositories; remotes and releases & math only \\
+merge-reconciler & Reconciling divergent branches after a merge conflict & disabled in both \\
+github-auth & Setting up and repairing repository authentication & disabled in both \\
+blocked-page-recovery & Reaching content behind access walls, rate limits and bot filters & both profiles \\
+reddit-reading & Community reading; the only skill whose gate is inverted between the profiles & librarian only \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{Top-level skills: capabilities that cut across the categories.}\label{tab:skillstop}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.5cm} X >{\raggedright\arraybackslash}p{2.3cm}@{}}
+\toprule
+\textbf{Skill} & \textbf{Role in the workflow} & \textbf{Activation} \\
+\midrule
+ghasemi-latex-style & The house LaTeX style: document class, fonts, notation and the anti-pattern checklist every manuscript passes & both profiles \\
+semantic-scholar & The citation-graph API: search, references, recommendations, batch enrichment & both profiles \\
+hermes-plugin-management & Installing, enabling and debugging plugins & both profiles \\
+differential-sdp & Orchestrating the differential-algebraic SDP research programme & math only \\
+workspace-doc-hierarchy & Maintaining the layered documentation chain: project guidance at each level & math only \\
+irene-rewrite-dev & Development workflow for the shared numerical backend package & math only \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Notes on the catalog}
+
+\textbf{The two catalogs are the same catalog.} Each profile carries fifty-seven skill entries, and
+their union is fifty-nine: only four entries are exclusive to one profile --- the development workflow
+for the numerical backend and the exact-gate-scripts skill in math, and the two ingestion skills in
+the librarian. Everything else is present in both trees, and the profiles differ only in what is
+switched on.
+
+\textbf{Activation is a negative specification.} Math disables twelve names and the librarian
+twenty-eight, and the librarian's longer list is precisely the computational and proof surface the
+math profile exists to provide. Resolving those names against the live trees gives three outcomes:
+five of math's and eighteen of the librarian's disabled names match a skill in the profile tree; six
+and nine respectively match only an entry in the curator's archive, meaning they are residue from
+skills already retired; and one name in each list --- a local-inference skill that was never installed
+--- matches nothing at all. The distinction matters because resolution is by leaf name: a disabled
+entry that matches only an archived skill, or nothing, will silently disable a same-named skill the
+day one is installed.
+
+\textbf{One gate is inverted.} The community-reading skill is disabled for math and enabled for the
+librarian --- the only entry whose activation runs opposite to every other difference between the two
+profiles, and the clearest evidence that the disabled lists were assembled by hand rather than
+derived from a role.
+
+\textbf{One reference is orphaned.} The designated workflow names a memory skill that exists in
+neither catalog, and part of that reference is a shell invocation of a client script that does not
+exist either. It is the same class of defect as the dangling server registration in
+Appendix~\ref{app:mcp}: a name recorded in one place and never created in another.
+
 %=====================================================================
 \section*{Sources and Verification}\label{sec:sources}
 
