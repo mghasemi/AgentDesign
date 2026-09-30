@@ -1,13 +1,86 @@
+# ======================================================================
+# AgentDesign — what is not part of the design record
+# ======================================================================
+# The tracked content of this project is: the manuscript source and its
+# compiled PDF (agent_design.pdf is a deliverable and stays tracked — there
+# is deliberately no *.pdf rule below), the sanitized profile packs (math/,
+# librarian/), the service stack (stack/, with its real .env files excluded),
+# the reproducible extraction scripts (references/) and their sanitized
+# output (data/).
+
+# ------------------------------------------------- LaTeX build artifacts
+# Byproducts of compiling agent_design.tex. The PDF itself is tracked.
 *.aux
 *.out
 *.log
 *.fls
 *.fdb_latexmk
 *.toc
+*.lof
+*.lot
+*.synctex.gz
+*.synctex(busy)
+*.bbl
+*.blg
+*.nav
+*.snm
+*.vrb
+*.spl
+*.idx
+*.ind
+*.ilg
+*.bcf
+*.run.xml
+*.xdv
+*.pdfsync
 missfont.log
+*-eps-converted-to.pdf
 
-# stack: real credentials and service data stay on the host
+# ------------------------------------- profile packs: runtime state
+# Loader, curator and telemetry bookkeeping written by Hermes as it runs.
+# It is per-installation state, not design: a pack should not ship one
+# machine's usage counters, curator ledger or bundle manifest, and all of it
+# is regenerated on first run. Credential templates (.env, .emv) are NOT
+# excluded — they document which keys each component needs.
+*/skills/.usage.json
+*/skills/.bundled_manifest
+*/skills/.curator_state
+*/skills/.curator_suppressed
+*/skills/.curator_ledger.jsonl
+*/skills/.hub/
+*/skills/.locks/
+
+# ------------------------------------------- profile packs: runtime stores
+# Session history, databases, logs, sandboxes and credential vaults are
+# excluded from the packs by the builder; these patterns keep them out if a
+# pack is ever rebuilt or edited by hand.
+*/state.db
+*/state.db-*
+*/sessions/
+*/logs/
+*/telemetry/
+*/sandbox/
+*/sandbox-home/
+*/vault/
+*/curator_backups/
+
+# ------------------------------------------- stack: live secrets and data
+# The stack ships as compose files plus .env.example templates; the real
+# environment files and the service data directories stay on the host.
 stack/.env
 stack/lightrag/.env
 stack/honcho/.env
 stack/data/
+stack/**/data/
+
+# ------------------------------------------------ OS, editor, interpreter
+.DS_Store
+Thumbs.db
+*~
+*.swp
+*.swo
+.idea/
+.vscode/
+__pycache__/
+*.pyc
+*.pyo

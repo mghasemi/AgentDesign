@@ -1,9 +1,0 @@
-{
-  "last_report_path": "/home/YOUR-USER/.hermes/profiles/math/logs/curator/20260929-123523",
-  "last_run_at": "2026-09-29T12:35:23.631358+00:00",
-  "last_run_duration_seconds": 0.315262,
-  "last_run_summary": "auto: 4 marked stale, 3 archived, 1 reactivated; llm: skipped (consolidation off)",
-  "last_run_summary_shown_at": "2026-09-29T12:35:23.631358+00:00",
-  "paused": false,
-  "run_count": 8
-}

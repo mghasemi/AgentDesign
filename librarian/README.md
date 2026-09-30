@@ -60,5 +60,8 @@ would break the tree.
 
 Runtime state and private data are **not** part of this pack: `state.db*`, `sessions/`,
 `logs/`, `cache/`, `state-snapshots/`, `backups/`, `vault/`, `telemetry/`, lock files,
-`__pycache__/`, curator backups, and the sandbox `home/` directory. Hermes recreates
-the runtime state on first start.
+`__pycache__/`, curator backups, and the sandbox `home/` directory. The loader, curator
+and telemetry bookkeeping files are left out as well — `.usage.json`, `.bundled_manifest`,
+`.curator_state`, `.curator_suppressed`, `.curator_ledger.jsonl` — since they record one
+installation's history rather than the profile's design. Hermes recreates the runtime
+state on first start.

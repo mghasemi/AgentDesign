@@ -40,8 +40,8 @@
 \usetikzlibrary{positioning, arrows.meta, calc, fit}
 
 %-----------------------------------------------------------
-\newcommand*{\Title}{AgentDesign: Hermes Profile Architecture}
-\newcommand*{\cpiType}{Math \& Librarian Profiles --- Design Documentation}
+\newcommand*{\Title}{Hermes Profile Architecture}
+\newcommand*{\cpiType}{Math \& Librarian Profiles}
 \newcommand*{\Date}{September 2026}
 \newcommand*{\Author}{Mehdi Ghasemi}
 \newcommand*{\Company}{Research Workspace}
@@ -353,13 +353,15 @@ profiles/<profile>/skills/          # 24 top-level dirs (math) / 23 (librarian)
   .archive/                    # retired skills kept as curator tombstones
   .curator_ledger.jsonl  .curator_state/  .curator_suppressed/
   .bundled_manifest  .usage.json  .hub/  .locks/
+                               # ^ per-installation state: not shipped
 \end{lstlisting}
 
 \subsection*{Distributable profile packs}\label{sec:packs}
 
 The \mono{math/} and \mono{librarian/} folders inside this project are sanitized, ready-to-use
 copies of the two profiles: the same directory structure, the same configuration and skill trees,
-with every credential, endpoint, hostname and local path replaced by a placeholder. A builder script
+with every credential, endpoint, hostname and local path replaced by a placeholder, and with the
+per-installation bookkeeping (the loader, curator and telemetry files listed above) left out. A builder script
 in \mono{references/} copies the configuration, skill, plugin, script and memory trees from a live
 installation, scrubs secrets and identity, and writes a per-pack \mono{README.md}. Copying a pack into \mono{\textasciitilde/.hermes/profiles/} and
 filling in the placeholders reproduces the profile; the packs are described in

@@ -13,7 +13,9 @@ keeping the Hermes profile directory structure and scrubbing every secret:
 
 Excluded on purpose: runtime state (state.db*, sessions, logs, caches,
 state-snapshots, backups, sandbox home/, vault/, telemetry/, lock files),
-__pycache__, curator backups/archive.
+__pycache__, curator backups/archive, and the loader/curator/telemetry
+bookkeeping files (.usage.json, .bundled_manifest, .curator_state,
+.curator_suppressed, .curator_ledger.jsonl).
 
 Usage:  python3 build_profile_packs.py [--dest DIR] [--source HERMES_DIR]
 """
@@ -61,6 +63,11 @@ ALLOW_TOP = {
 }
 EXCL_DIRS = {".archive", ".curator_backups", ".locks", ".hub", "__pycache__", "output", "node_modules", ".git"}
 EXCL_SUFFIX = (".pyc", ".pyo", ".lock", ".db", ".db-shm", ".db-wal", ".jsonl", ".tmp")
+# Loader, curator and telemetry bookkeeping: per-installation runtime state, not
+# design. Kept out of the packs (and out of version control) so a pack never
+# ships one machine's usage counters, bundle manifest or curator ledger.
+EXCL_FILES = {".usage.json", ".bundled_manifest", ".curator_state",
+              ".curator_suppressed", ".curator_ledger.jsonl"}
 
 CRED_RELS = [
     "plugins/vikunja/dashboard/.emv",
@@ -245,7 +252,7 @@ def copy_profile(src: str, dst: str) -> int:
             if rel.split(os.sep)[0] == "cron":
                 files = [f for f in files if f == "jobs.json"]
             for f in files:
-                if f.endswith(EXCL_SUFFIX):
+                if f in EXCL_FILES or f.endswith(EXCL_SUFFIX):
                     continue
                 tgt = os.path.join(dst, rel, f)
                 os.makedirs(os.path.dirname(tgt), exist_ok=True)
@@ -316,8 +323,11 @@ would break the tree.
 
 Runtime state and private data are **not** part of this pack: `state.db*`, `sessions/`,
 `logs/`, `cache/`, `state-snapshots/`, `backups/`, `vault/`, `telemetry/`, lock files,
-`__pycache__/`, curator backups, and the sandbox `home/` directory. Hermes recreates
-the runtime state on first start.
+`__pycache__/`, curator backups, and the sandbox `home/` directory. The loader, curator
+and telemetry bookkeeping files are left out as well — `.usage.json`, `.bundled_manifest`,
+`.curator_state`, `.curator_suppressed`, `.curator_ledger.jsonl` — since they record one
+installation's history rather than the profile's design. Hermes recreates the runtime
+state on first start.
 """
 
 EXTRA_MATH = ("* the SageMath conda environment (`sage`), the Lean/elan toolchain, and the TeX Live "
