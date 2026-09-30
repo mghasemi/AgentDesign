@@ -40,6 +40,12 @@ AgentDesign/
 ├── cpistuff/, t1ggm.fd, ts1ggm.fd   ← template style package + Garamond font descriptors
 ├── math/                            ← sanitized, ready-to-use math profile pack
 ├── librarian/                       ← sanitized, ready-to-use librarian profile pack
+├── stack/                           ← the profiles' service plane as one docker compose project
+│   ├── docker-compose.yml           ← 16 containers (edge, notes, ledger, retrieval, ingestion, memory)
+│   ├── .env.example                 ← every credential/port placeholder (real .env is git-ignored)
+│   ├── searxng/settings.yml         ← live SearXNG config, secret_key from ${SEARXNG_SECRET}
+│   ├── lightrag/.env.example, honcho/.env.example, paperflow/Dockerfile
+│   └── README.md                    ← deploy guide, service map, live-deployment findings
 ├── data/
 │   └── profile_comparison.json      ← extracted configuration data (sanitized)
 └── references/
@@ -64,6 +70,20 @@ replaced with `REPLACE_ME` / `YOUR-*` placeholders; skill *names* are kept verba
 files reference them by name. Runtime state (sessions, logs, caches, sandbox homes, vaults,
 telemetry) is excluded. Verification after a build: no source literal survives in either pack,
 the pattern scan is clean, and both `config.yaml` files parse as YAML.
+
+## The service plane (`stack/`)
+
+`stack/docker-compose.yml` unifies the seven compose projects that run on the live host
+(`/opt/docker/{docker,honcho,lightrag,vikunja,zimi,pocketbase,paperflow}`) into one stack of
+sixteen containers. It was validated on the host with `docker compose config -q` and
+`docker compose up --dry-run`, and its plan was diffed against the live `docker ps`:
+identical container names and identical published host ports for all sixteen services.
+Four images differ on purpose — `honcho-api`, `honcho-deriver` and `paperflow` are local
+builds (build contexts supplied), and `lightrag` uses the published upstream image instead
+of the host's local build (documented in the stack README).
+
+Secrets never enter this folder: `docker-compose.yml` interpolates everything from `.env`,
+which is git-ignored, and `.env.example` carries the placeholders.
 
 ## LaTeX Compilation
 

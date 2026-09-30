@@ -372,13 +372,21 @@ AgentDesign/
   agent_design.tex                  # this document (source of record)
   agent_design.pdf                  # compiled output
   AGENTS.md                         # project guidance for future sessions
+  math/  librarian/                 # sanitized, ready-to-use profile packs (Section~\ref{sec:packs})
+  stack/                            # the profiles' service plane as one compose project
   cpistuff/                         # CPI LaTeX template: cpi.sty + logos
   t1ggm.fd  ts1ggm.fd               # Garamond T1 declarations (compile prerequisite)
   data/profile_comparison.json      # machine-readable extraction (secret values redacted)
-  references/extract_profile_data.py
+  references/extract_profile_data.py   references/build_profile_packs.py
+  references/sanitize_extracted_data.py
   references/skill_inventory.md     # per-profile skill inventory
   .gitignore
 \end{lstlisting}
+
+The \mono{stack/} folder turns the service plane of Section~\ref{sec:services} into an executable
+artifact: one compose project that brings up every container the two profiles talk to, with
+credentials interpolated from an untracked \mono{.env}. Its \mono{README.md} maps each container to
+the MCP server or skill that consumes it and records what the live deployment gets wrong.
 
 Reproducing the build requires one environment step beyond the template: the CPI style loads the
 Garamond T1 fonts, which are not part of a stock TeX Live installation. They are installed
@@ -390,8 +398,8 @@ first page with a missing-font error rather than a document error.
 \section{Skill System: Design for General Math Projects}\label{sec:skills}
 
 Skills are the unit of reusability. Each \mono{SKILL.md} carries a trigger description in its
-frontmatter, an imperative body, optional scripts, and --- where needed --- a co-located
-credential file (\mono{.emv}) co-located with the skill that consumes it. The catalog is shared
+frontmatter, an imperative body, optional scripts, and --- where needed --- a credential file
+(\mono{.emv}) co-located with the skill that consumes it. The catalog is shared
 between the two profiles: the same populated categories, the same empty category shells, and the
 same top-level skills, with a single exception --- \mono{irene-rewrite-dev} is an active top-level
 skill in math and a curator tombstone in the librarian. Only activation differs. Table~\ref{tab:skillcats}

@@ -5,3 +5,9 @@
 *.fdb_latexmk
 *.toc
 missfont.log
+
+# stack: real credentials and service data stay on the host
+stack/.env
+stack/lightrag/.env
+stack/honcho/.env
+stack/data/
