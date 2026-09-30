@@ -8,6 +8,11 @@ plugins, and end-to-end workflow. Produce a reusable design document that serves
 both a project architecture record and a template for creating new math-focused Hermes
 profiles. The document ships together with sanitized, ready-to-use copies of both profiles.
 
+`README.md` is the entry point for anyone opening this repository: it carries the layout, the
+build and deployment instructions, the reproducibility commands and the redaction policy. Keep it
+in sync when the layout, the page count or the status changes — the same-commit rule that applies
+to this file.
+
 ## Status
 
 Active — Phase I (exploration) and Phase II (documentation + packs) complete; Phases III–V open.
