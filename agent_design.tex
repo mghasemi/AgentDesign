@@ -561,11 +561,11 @@ The \textbf{four integration channels} a skill may use, in the preference order 
 Plugins are the third extension channel beside skills and MCP servers, and their configuration is
 byte-identical in the two profiles.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering\small
 \caption{Plugin configuration.}
 \label{tab:plugins}
-\renewcommand{\arraystretch}{1.2}
+\renewcommand{\arraystretch}{1.05}
 \begin{tabularx}{\textwidth}{@{}l X@{}}
 \toprule
 \textbf{Element} & \textbf{State} \\
@@ -599,12 +599,14 @@ The designated workflow for math projects is the \textbf{\mono{math-research-wor
 (v1.6), a single-agent adaptation of the MathAgent multi-agent system with Graph-of-Agents message
 passing and Reflexion quality gates. Its six stages, each gated by a 5-check Reflexion gate:
 
-\begin{center}
-\small
+\begin{table}[htbp]
+\centering\small
+\caption{The six stages of the designated research workflow, each gated by a five-check
+Reflexion gate.}\label{tab:workflow}
 \renewcommand{\arraystretch}{1.2}
 \begin{tabularx}{\textwidth}{@{}c X l@{}}
 \toprule
-Stage & Activity & Primary tools\\
+\textbf{Stage} & \textbf{Activity} & \textbf{Primary tools}\\
 \midrule
 1. Problem decomposition & Restate the problem; open Vikunja tasks and a hypothesis tree (conjecture = parent, attack branches = children with status) & vikunja MCP\\
 2. Literature synthesis & Local-first retrieval cascade: LightRAG $\to$ academic-research-hub $\to$ Semantic Scholar $\to$ SearXNG $\to$ ZIMI; every citation passes the \emph{Citation Verification Gate} (arXiv API / Crossref / S2 before any bibliographic fact is recorded) & lightrag, searxng, zimi, s2 skill\\
@@ -614,7 +616,7 @@ Stage & Activity & Primary tools\\
 6. Reflection \& close-out & Claims ledger updated; failures promoted to skill pitfalls or project reports; project README + AGENTS.md status synced in the same commit & ---\\
 \bottomrule
 \end{tabularx}
-\end{center}
+\end{table}
 
 Supporting state: a per-project failure scratchpad under
 \mono{\textasciitilde/.hermes/}\allowbreak\mono{profiles/math/}\allowbreak\mono{scratchpad/},
@@ -803,6 +805,128 @@ V. Migration & Shared adapter move, services.yaml, toolchain bundle; then retire
 \bottomrule
 \end{tabularx}
 \end{center}
+
+\appendix
+
+%=====================================================================
+\section{The Self-Hosted Service Plane}\label{app:stack}
+
+Section~\ref{sec:services} described the service plane as a design; this appendix records it as a
+deployment. The \mono{stack/} folder of this project holds one compose project that brings up every
+container the two profiles talk to. On the live installation those containers run as seven separate
+compose projects under a single directory, one per subsystem, with credentials written directly into
+their files; the subject here is the unified version, in which the same sixteen components form one
+stack whose secrets live in an untracked environment file.
+
+Sixteen components is more than the profiles' service table suggests, because four of them are
+infrastructure for another component rather than services the profiles call directly: the metasearch
+limiter store, the graph and vector stores behind the retrieval service, and the database and cache
+behind the memory service. They are listed here because a stack that omits them is not reproducible.
+The two inventory tables below therefore divide the components by function, and the tables that follow
+place them in the workflow.
+
+\subsection{Component inventory}
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Component inventory, part one: the edge and the knowledge-management components.}\label{tab:stackedge}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.5cm} >{\raggedright\arraybackslash}p{2.2cm} >{\raggedright\arraybackslash}p{2.9cm} X@{}}
+\toprule
+\textbf{Component} & \textbf{Endpoint} & \textbf{Image} & \textbf{Role in the workflow} \\
+\midrule
+npm & :80, :443, :81 & \mono{jc21/}\allowbreak\mono{nginx-}\allowbreak\mono{proxy-}\allowbreak\mono{manager:}\allowbreak\mono{latest} & Edge of the plane: terminates HTTP/HTTPS on the host, with the routing admin UI on the third port. No proxy hosts are configured yet, so every other component is reached by its own port. \\
+portainer & :9000 & \mono{portainer/}\allowbreak\mono{portainer-}\allowbreak\mono{ce:}\allowbreak\mono{latest} & Management of the plane itself: start, stop, inspect and read the logs of the other containers, driven from the terminal with an API key rather than through a tool bridge. \\
+siyuan & :6806 & \mono{b3log/}\allowbreak\mono{siyuan:}\allowbreak\mono{latest} & Block-level note store: findings, synthesis pages and equation blocks, written through the notes tool bridge and the desktop plugin and read back when grounding an answer or drafting a manuscript. \\
+vikunja & :3456 & \mono{vikunja/}\allowbreak\mono{vikunja:}\allowbreak\mono{2.3.0} & Task ledger: multi-day work, hypothesis trees (conjecture as parent, attack branches as children carrying a status) and cross-session state. \\
+searxng & :5050 & \mono{searxng/}\allowbreak\mono{searxng:}\allowbreak\mono{latest} & Federated metasearch: the live-web layer of the retrieval cascade, returning structured results to the literature stage. \\
+searxng-redis & internal & \mono{redis:}\allowbreak\mono{7-}\allowbreak\mono{alpine} & Limiter store for the metasearch instance: engine bans, suspension timers and request accounting. Not published to the host. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Component inventory, part two: retrieval, ingestion and research memory.}\label{tab:stackretrieval}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.5cm} >{\raggedright\arraybackslash}p{2.2cm} >{\raggedright\arraybackslash}p{2.9cm} X@{}}
+\toprule
+\textbf{Component} & \textbf{Endpoint} & \textbf{Image} & \textbf{Role in the workflow} \\
+\midrule
+zimi & :8899 & \mono{epheterson/}\allowbreak\mono{zimi} & Offline encyclopedia over ZIM archives: sub-second archival grounding for historical and encyclopedic claims, consulted before any rate-limited live search. \\
+lightrag & :9621 & \mono{ghcr.io/}\allowbreak\mono{hkuds/}\allowbreak\mono{lightrag:}\allowbreak\mono{latest} & Graph-RAG over the curated literature lake: ingests documents and answers multi-hop entity and relation queries. Sole backend of the retrieval tool bridge. \\
+neo4j & :7474, :7687 & \mono{neo4j:}\allowbreak\mono{5.20.0} & Property-graph store holding the entity graph of the literature lake (browser and Bolt endpoints). \\
+qdrant & :6333, :6334 & \mono{qdrant/}\allowbreak\mono{qdrant:}\allowbreak\mono{latest} & Vector store holding the chunk embeddings of the literature lake (HTTP and gRPC endpoints). \\
+paperflow & :8000 & \mono{built from ./}\allowbreak\mono{paperflow} & Paper conversion: PDF to Markdown with OCR, feeding the ingestion skills. Jobs are queued and their outputs land in the shared data directory. \\
+pocketbase & :8090 & \mono{ghcr.io/}\allowbreak\mono{muchobien/}\allowbreak\mono{pocketbase:}\allowbreak\mono{latest} & Intake queue for the wiki pipeline: a document is dropped here and the pipeline carries it into the knowledge graph and the wiki, decoupling capture from processing. \\
+honcho-api & :8008 & \mono{built from ./}\allowbreak\mono{honcho} & Persistent cross-session research memory: the profiles' memory provider, storing what was concluded and serving it back at the start of later sessions. \\
+honcho-deriver & internal & \mono{built from ./}\allowbreak\mono{honcho} & Background worker of the memory service: derives the peer representation and session summaries that the API serves. \\
+honcho-database & 127.0.0.1:5433 & \mono{pgvector/}\allowbreak\mono{pgvector:}\allowbreak\mono{pg15} & Store for the memory service: messages, conclusions and their embeddings. Published on the loopback interface only. \\
+honcho-redis & 127.0.0.1:6379 & \mono{redis:}\allowbreak\mono{8.2} & Cache and work queue for the memory service. Published on the loopback interface only. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Role in the six-stage workflow}
+
+\begin{table}[H]
+\centering\small
+\caption{Where the stack sits in the six-stage workflow of Section~\ref{sec:workflow}.}\label{tab:stackstages}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.9cm} >{\raggedright\arraybackslash}p{3.5cm} X@{}}
+\toprule
+\textbf{Stage} & \textbf{Components} & \textbf{What they contribute} \\
+\midrule
+1. Problem decomposition & vikunja, siyuan & The restated problem becomes a ledger task with a hypothesis tree; notes hold the framing that a ledger entry is too terse to carry. \\
+2. Literature synthesis & zimi, searxng, lightrag, neo4j, qdrant, pocketbase, paperflow & The retrieval cascade runs offline-first: the archive answers what it can, federated search covers the live web, and the graph-RAG service answers multi-hop questions over what has already been ingested. The ingestion components keep that lake current. \\
+3. Computation & none of the stack & Deterministic computation runs against the sandboxed toolchain and the symbolic services; the stack supplies no part of this stage's critical path. \\
+4. Formal verification & none of the stack & The proof assistant runs from the sandbox home against a pinned library project; verification is deliberately local and offline. \\
+5. Manuscript production & siyuan & Manuscript sources are compiled locally; the note store carries the notation decisions and equation blocks that the drafting passes reuse. \\
+6. Reflection and close-out & vikunja, honcho-api & Tasks are closed in the ledger and the outcome is written to the memory service, so the next session starts from what was decided rather than from what was merely said. \\
+Every stage & npm, portainer, honcho-api & Edge access to the plane, container management while working, and the memory that spans sessions. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Dependencies outside the stack}
+
+\begin{table}[H]
+\centering\small
+\caption{Dependencies the stack does not containerise, and why.}\label{tab:stackexternal}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.3cm} >{\raggedright\arraybackslash}p{3.5cm} X@{}}
+\toprule
+\textbf{Dependency} & \textbf{Where it lives} & \textbf{Why it is out of scope} \\
+\midrule
+Inference server & another machine on the LAN, port 1234 & Serves every model call for both profiles and for the memory service. Not containerised because it needs a GPU and multi-gigabyte model weights; both profiles fail loudly when it is unreachable. \\
+Calibre server & systemd service on the host, port 9876 & The ebook library and its conversion tooling. The library predates the container stack, and the ingestion skills call it over HTTP. \\
+Zotero & SaaS API & Bibliography, BibTeX export and the citation library. \\
+Wolfram\textbar Alpha & SaaS API & Symbolic and numeric computation beyond the local stack, used in the computation stage. \\
+Semantic Scholar, arXiv, Crossref & SaaS APIs & Citation graph and the metadata verification gate that every recorded citation must pass. \\
+OpenRouter & SaaS API & LLM and embedding provider behind the graph-RAG service. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The first two rows are reached over the network exactly as the containers are; the rest are public
+APIs. Their absence from the stack is a design decision rather than an oversight: each needs hardware,
+data or a service that a container cannot supply, and each is reachable from the profiles on the same
+terms as the containerised components.
+
+\subsection{Deployment notes}
+
+The stack is a single compose project, and no credential is stored in it: every one is interpolated
+from an untracked environment file whose template ships with the project as a list of placeholders.
+Bind-mounted service data resolves under one configurable root, so the same file serves both a fresh
+install and a migration onto existing data, while the memory service's database and cache use named
+volumes. Two images are built from source and their build contexts are supplied; the retrieval
+service runs its published upstream image, with the local-build variant given as a commented
+alternative.
+
+The stack was validated against the live installation rather than merely parsed. The compose
+configuration resolves cleanly, a dry run produces the complete creation plan, and that plan matches
+the running containers one for one --- identical container names and identical published host ports
+for all sixteen components.
 
 %=====================================================================
 \section*{Sources and Verification}\label{sec:sources}

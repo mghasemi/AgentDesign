@@ -11,8 +11,9 @@ profiles. The document ships together with sanitized, ready-to-use copies of bot
 ## Status
 
 Active — Phase I (exploration) and Phase II (documentation + packs) complete; Phases III–V open.
-The design document is `agent_design.tex` → `agent_design.pdf` (17 pp, compiles clean), and the
-profile packs are `math/` and `librarian/`.
+The design document is `agent_design.tex` → `agent_design.pdf` (20 pp, compiles clean), and the
+profile packs are `math/` and `librarian/`. Appendix A documents the service plane (`stack/`)
+component by component.
 
 ## Working Directory
 
