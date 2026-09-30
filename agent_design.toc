@@ -1,0 +1,10 @@
+\contentsline {section}{\numberline {1}Objectives and Scope}{3}{section.1}%
+\contentsline {section}{\numberline {2}Layered Architecture}{3}{section.2}%
+\contentsline {section}{\numberline {3}Profile System: Structure Comparison}{4}{section.3}%
+\contentsline {section}{\numberline {4}Skill System: Design for General Math Projects}{6}{section.4}%
+\contentsline {section}{\numberline {5}MCP Bridge}{8}{section.5}%
+\contentsline {section}{\numberline {6}Tool Stack and Service Plane}{9}{section.6}%
+\contentsline {section}{\numberline {7}The Research Workflow}{11}{section.7}%
+\contentsline {section}{\numberline {8}Identified Couplings and Defects}{13}{section.8}%
+\contentsline {section}{\numberline {9}Toward an Abstraction Layer}{13}{section.9}%
+\contentsline {section}{\numberline {10}Roadmap for AgentDesign Itself}{16}{section.10}%
