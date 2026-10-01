@@ -84,3 +84,5 @@ Thumbs.db
 __pycache__/
 *.pyc
 *.pyo
+# in-place artwork edits keep a pristine copy
+*.orig-backup
