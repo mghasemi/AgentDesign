@@ -30,9 +30,9 @@ is a distributable artifact it describes.
 | 5 | The skill system as a design for general math projects, including how activation is expressed |
 | 6 | The MCP bridge: naming, the native-versus-adapter split, credentials, registration |
 | 7–8 | The tool stack and service plane, and the six-stage research workflow it serves |
-| 9–10 | Nine couplings and defects found by inspection, then the abstraction layer that would remove them |
+| 9–10 | The couplings and defects found by inspection (Table 7), then the abstraction layer that would remove them |
 | 11 | Roadmap for this documentation project itself |
-| A | **The Self-Hosted Service Plane** — every component, its role, its dependencies, why it was chosen, and what would replace it |
+| A | **The Self-Hosted Service Plane** — every component, its role, its dependencies, why it was chosen, what would replace it, and the hardware and model envelope it runs in |
 | B | **The Model Context Protocol Bridge** — every server, its tool surface, and where the workflow spends it |
 | C | **The Skill Surface** — the skills each stage invokes, then the complete catalog with per-profile activation |
 | — | Sources and verification: how each claim was derived, and the redaction policy |
@@ -84,6 +84,14 @@ the task ledger, retrieval (metasearch, offline archives, graph-RAG with its gra
 stores), the ingestion queue and conversion service, and the cross-session memory service. No
 credential is stored in the compose file — every one is interpolated from the untracked `.env`.
 `stack/README.md` has the service map, the data-migration notes and the deployment findings.
+
+Every component is open source and has its own interface, and the plane is built for local deployment:
+in practice it runs offline, with the inference server as the one piece the compose project does not
+carry. The binding constraints are hardware, not subscriptions — the document's operating envelope
+(§A.6) suggests 64 GB of system memory and 32 GB of accelerator memory, with `QWEN3.8-27B` at Q4 for
+the main tasks, `QWEN3-8B` for the memory service and `text-embedding-nomic-embed-text-v1.5` for
+embeddings. Online storage and compute remain available, at the cost of research privacy and token
+spend.
 
 ## Reproducing the extraction
 

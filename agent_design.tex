@@ -983,6 +983,52 @@ configuration resolves cleanly, a dry run produces the complete creation plan, a
 the running containers one for one --- identical container names and identical published host ports
 for all sixteen components.
 
+\subsection{Operating envelope: hardware, models and the offline posture}
+
+Each component of the plane is an independent application with an interface of its own, and every one
+of them is open source. Nothing in the design requires them to be used together: the task ledger, the
+note store, the bibliography manager, the archive reader and the metasearch instance can each be
+driven directly through their own interface, and the workflow is a convention over them rather than a
+replacement for them.
+
+The design is aimed at local deployment, and in practice it runs offline. Retrieval, storage, memory,
+task management and document handling all resolve to services on the local network, and the one
+component the stack does not containerise --- the inference server --- is expected on the same
+network. What the design costs is therefore measured in hardware rather than in subscriptions:
+system memory, accelerator memory and storage are the binding constraints, and they scale with the
+number of services enabled and the size of the knowledge base rather than with the number of
+requests.
+
+Online services remain available at every layer. Storage and compute can be moved off the local
+machine, and several of the provider-side APIs the workflow reaches --- the bibliographic and
+citation services, the metasearch fallback, the inference provider --- are online by construction.
+Doing so trades two things for convenience: the privacy of the research, because queries, documents
+and intermediate results leave the machine, and the token cost, because every model call is billed.
+The local configuration exists to make that trade a deliberate choice rather than a default.
+
+A workable envelope for the whole plane fits on one workstation:
+
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.6cm} X@{}}
+\toprule
+\textbf{Item} & \textbf{Suggested minimum} \\
+\midrule
+System memory & \textbf{64\,GB} --- the knowledge stores, the graph and vector stores and the memory
+database are all resident \\
+Accelerator memory & \textbf{32\,GB} --- holds the main model at quantised weights together with a
+working context; this applies to the machine that serves the models, which the stack expects on the
+LAN \\
+Storage & scales with the knowledge base and its embeddings, the container images and the model
+weights \\
+Main model & \mono{QWEN3.8-27B} at Q4 quantisation --- carries the workflow's main tasks \\
+Memory model & \mono{QWEN3-8B} --- sufficient for the derivation work the memory service does \\
+Embedding model & \mono{text-embedding-nomic-embed-text-v1.5} --- shared by the memory service and
+the graph-RAG service \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
 \section{The Model Context Protocol Bridge}\label{app:mcp}
 
 Section~\ref{sec:mcp} described the bridge between the profiles and their tools; this appendix
