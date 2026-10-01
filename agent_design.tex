@@ -8,11 +8,6 @@
 \usepackage[utf8]{inputenc}
 \usepackage{listings}
 
-\definecolor{codegreen}{rgb}{0,0.6,0}
-\definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
-
 \lstdefinestyle{mystyle}{
     backgroundcolor=\color{backcolour},
     commentstyle=\color{codegreen},
@@ -38,6 +33,14 @@
 \usepackage{hyperref}
 \usepackage{tikz}
 \usetikzlibrary{positioning, arrows.meta, calc, fit}
+
+% The code colours are defined here rather than at the top: hyperref pulls in xcolor, and
+% xcolor cannot resolve the model of a colour defined by the legacy color package, so any
+% \textcolor or draw= use of them fails (and re-defining them after the fact warns).
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
 
 %-----------------------------------------------------------
 \newcommand*{\Title}{Hermes Profile Architecture}
@@ -167,13 +170,17 @@ per profile at \mono{\textasciitilde/.hermes/}\allowbreak\mono{profiles/\textles
     boxL/.style={draw=DarkBlue!60, fill=DarkBlue!5, rounded corners=2pt, minimum width=3.1cm, align=center},
     boxP/.style={draw=mathgreen!70, fill=mathgreen!8, rounded corners=2pt, minimum width=3.1cm, align=center},
     layerLbl/.style={font=\small\bfseries, text=DarkBlue},
-    every edge/.style={->, >=Stealth, draw=codegray}
+    dep/.style={->, >=Stealth, draw=codegray, semithick}
   ]
   \node[boxL] (core) {Layer 0 --- Hermes Core\\[-1pt]\tiny agent core $\cdot$ CLI $\cdot$ gateway $\cdot$ built-in tools $\cdot$ binaries};
-  \node[boxP, below=.55cm of core] (prof) {Layer 1 --- Profile System\\[-1pt]\tiny config.yaml $\cdot$ .env $\cdot$ state.db $\cdot$ home/ sandbox $\cdot$ cron $\cdot$ plugins};
-  \node[boxP, below=.55cm of prof] (skill) {Layer 2 --- Skill Catalog\\[-1pt]\tiny SKILL.md units in category dirs; enabled/disabled per profile};
-  \node[boxP, below=.55cm of skill] (mcp) {Layer 3 --- MCP Bridge\\[-1pt]\tiny 13 servers: native scripts + generic CLI adapter};
-  \node[boxL, below=.55cm of mcp] (svc) {Layer 4 --- Service Plane\\[-1pt]\tiny LightRAG $\cdot$ SearXNG $\cdot$ ZIMI $\cdot$ Vikunja $\cdot$ SiYuan $\cdot$ Calibre $\cdot$ LM Studio};
+  \node[boxP, below=.85cm of core] (prof) {Layer 1 --- Profile System\\[-1pt]\tiny config.yaml $\cdot$ .env $\cdot$ state.db $\cdot$ home/ sandbox $\cdot$ cron $\cdot$ plugins};
+  \node[boxP, below=.85cm of prof] (skill) {Layer 2 --- Skill Catalog\\[-1pt]\tiny SKILL.md units in category dirs; enabled/disabled per profile};
+  \node[boxP, below=.85cm of skill] (mcp) {Layer 3 --- MCP Bridge\\[-1pt]\tiny 12 servers: native scripts + generic CLI adapter};
+  \node[boxL, below=.85cm of mcp] (svc) {Layer 4 --- Service Plane\\[-1pt]\tiny LightRAG $\cdot$ SearXNG $\cdot$ ZIMI $\cdot$ Vikunja $\cdot$ SiYuan $\cdot$ Calibre $\cdot$ LM Studio};
+  \draw[dep] (core) -- node[right, pos=.5] {\textcolor{codegray}{\tiny loads}} (prof);
+  \draw[dep] (prof) -- node[right, pos=.5] {\textcolor{codegray}{\tiny enables}} (skill);
+  \draw[dep] (skill) -- node[right, pos=.5] {\textcolor{codegray}{\tiny registers}} (mcp);
+  \draw[dep] (mcp) -- node[right, pos=.5] {\textcolor{codegray}{\tiny reaches}} (svc);
 \end{tikzpicture}
 \caption{Five-layer profile architecture. Layers 2--3 are the capability surface of a profile;
 layers 0 and 4 are shared infrastructure. Arrows indicate the direction in which each layer is
