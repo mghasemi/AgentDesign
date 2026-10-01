@@ -1,686 +1,660 @@
 {
-  "math": {
-    "profile_yaml_desc": "Executes autonomous workflows across software development, academic research, and creative media generation. Handles systematic debugging, scientific paper analysis, document processing, GitHub operations, and cross-platform productivity automation using extensive specialized too",
-    "total_skills_resarch": 28,
-    "total_skills_productivity": 9,
-    "disabled_skills": [
-      "calibre",
-      "docx",
-      "dogfood",
-      "github-auth",
-      "llama-cpp",
-      "merge-reconciler",
-      "node-inspect-debugger",
-      "opencode",
-      "powerpoint",
-      "rss-feeds",
-      "test-driven-development",
-      "reddit-reading"
+ "math": {
+  "profile_yaml_desc": "Executes autonomous workflows across software development, academic research, and creative media generation. Handles systematic debugging, scientific paper analysis, document processing, GitHub operations, and cross-platform productivity automation using extensive specialized too",
+  "total_skills_resarch": 28,
+  "total_skills_productivity": 9,
+  "disabled_skills": [
+   "calibre",
+   "docx",
+   "dogfood",
+   "github-auth",
+   "llama-cpp",
+   "merge-reconciler",
+   "node-inspect-debugger",
+   "opencode",
+   "powerpoint",
+   "rss-feeds",
+   "test-driven-development",
+   "reddit-reading"
+  ],
+  "mcp_servers": {
+   "vikunja": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "VIKUNJA_URL",
+     "VIKUNJA_ALT_URL",
+     "VIKUNJA_TOKEN",
+     "TOOL_SCRIPT",
+     "TOOL_SERVER_NAME"
     ],
-    "mcp_servers": {
-      "vikunja": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "VIKUNJA_URL",
-          "VIKUNJA_ALT_URL",
-          "VIKUNJA_TOKEN",
-          "TOOL_SCRIPT",
-          "TOOL_SERVER_NAME"
-        ],
-        "env_count": 5
-      },
-      "wolfram-alpha": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "WOLFRAM_ALPHA_APPID",
-          "WOLFRAM_ALPHA_TIMEOUT",
-          "TOOL_SCRIPT",
-          "TOOL_SERVER_NAME"
-        ],
-        "env_count": 4
-      },
-      "lightrag-query": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "LIGHTRAG_URL",
-          "LIGHTRAG_ALT_URL",
-          "LIGHTRAG_TIMEOUT",
-          "LIGHTRAG_API_KEY",
-          "TOOL_SCRIPT",
-          "TOOL_SERVER_NAME"
-        ],
-        "env_count": 6
-      },
-      "siyuan": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "SIYUAN_URL",
-          "SIYUAN_TOKEN",
-          "TOOL_SCRIPT",
-          "TOOL_SERVER_NAME"
-        ],
-        "env_count": 4
-      },
-      "zimi": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "ZIMI_URL",
-          "ZIMI_ALT_URL",
-          "ZIMI_TIMEOUT",
-          "TOOL_SCRIPT",
-          "TOOL_SERVER_NAME"
-        ],
-        "env_count": 5
-      },
-      "searxng": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "SEARXNG_URL"
-        ],
-        "env_count": 1
-      },
-      "zotero": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "ZOTERO_LIBRARY_TYPE",
-          "ZOTERO_LIBRARY_ID",
-          "ZOTERO_API_KEY",
-          "ZOTERO_BIB_PATH",
-          "TOOL_SCRIPT",
-          "TOOL_SERVER_NAME"
-        ],
-        "env_count": 6
-      },
-      "scientific-coding": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "SANDBOX_CPU_SECONDS",
-          "SANDBOX_MEM_MB",
-          "SIYUAN_URL",
-          "SIYUAN_TOKEN",
-          "TOOL_SCRIPT",
-          "TOOL_SERVER_NAME"
-        ],
-        "env_count": 6
-      },
-      "lean4": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "HOME",
-          "PATH"
-        ],
-        "env_count": 2
-      },
-      "sagemath": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "SAGE_TIMEOUT",
-          "PATH"
-        ],
-        "env_count": 2
-      },
-      "latex-manuscript": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "LATEX_COMPILER",
-          "LATEX_GLOSSARY_GROUP",
-          "TOOL_SCRIPT",
-          "TOOL_SERVER_NAME"
-        ],
-        "env_count": 4
-      },
-      "hermes-irene": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "LIGHTRAG_URL",
-          "LIGHTRAG_ALT_URL",
-          "LIGHTRAG_TIMEOUT",
-          "IRENE_SOURCE_DIR"
-        ],
-        "env_count": 4
-      },
-      "calibre": {
-        "command": "",
-        "env_keys": [
-          "CALIBRE_LIBRARY_PATH"
-        ],
-        "env_count": 1
-      }
-    },
-    "env_vars": {
-      "VIKUNJA_URL": "http://YOUR-HOST:3456",
-      "VIKUNJA_ALT_URL": "http://YOUR-DDNS-HOST:3456",
-      "VIKUNJA_TOKEN": "***",
-      "LIGHTRAG_URL": "http://YOUR-HOST:9621",
-      "LIGHTRAG_ALT_URL": "http://YOUR-DDNS-HOST:9621",
-      "LIGHTRAG_TIMEOUT": "20",
-      "LIGHTRAG_API_KEY": "***",
-      "WOLFRAM_ALPHA_APPID": "***",
-      "WOLFRAM_ALPHA_TIMEOUT": "20",
-      "WOLFRAM_ALPHA_RESULT_URL": "https://api.wolframalpha.com/v1/result",
-      "WOLFRAM_ALPHA_QUERY_URL": "https://api.wolframalpha.com/v2/query",
-      "WOLFRAM_ALPHA_VALIDATE_URL": "https://api.wolframalpha.com/v2/validatequery",
-      "SEARXNG_URL": "http://YOUR-HOST:5050",
-      "SEARXNG_ALT_URL": "http://YOUR-DDNS-HOST:5050",
-      "SEARXNG_TIMEOUT": "15",
-      "ZIMI_URL": "http://YOUR-HOST:8899",
-      "ZIMI_ALT_URL": "http://YOUR-DDNS-HOST:8899",
-      "ZIMI_TIMEOUT": "20",
-      "ZOTERO_API_KEY": "***",
-      "ZOTERO_LIBRARY_ID": "ZOTERO_LIBRARY_ID",
-      "ZOTERO_LIBRARY_TYPE": "user",
-      "SIYUAN_URL": "http://YOUR-HOST:6806",
-      "SIYUAN_TOKEN": "***",
-      "SIYUAN_NOTEBOOK": "",
-      "SAGE_TIMEOUT": "60",
-      "SANDBOX_CPU_SECONDS": "30",
-      "SANDBOX_MEM_MB": "512",
-      "LEAN4_TIMEOUT": "60",
-      "LEAN4_ALLOW_SCRATCH": "true",
-      "LEAN4_STRICT_PROJECT": "false",
-      "TELEGRAM_BOT_TOKEN": "***",
-      "SUDO_PASSWORD": "***",
-      "TAVILY_API_KEY": "***",
-      "HONCHO_BASE_URL": "http://YOUR-HOST:8008/",
-      "LM_BASE_URL": "http://YOUR-HOST:1234",
-      "HF_TOKEN": "***",
-      "HF_BASE_URL": "https://router.huggingface.co/v1",
-      "OPENCODE_GO_API_KEY": "***",
-      "OPENCODE_ZEN_API_KEY": "***",
-      "GITHUB_TOKEN": "***",
-      "WHATSAPP_MODE": "self-chat",
-      "WHATSAPP_DM_POLICY": "pairing",
-      "WHATSAPP_ENABLED": "true",
-      "WHATSAPP_ALLOWED_USERS": "13067166104",
-      "TELEGRAM_ALLOWED_USERS": "155989134",
-      "PORTAINER_URL": "http://YOUR-HOST:9000",
-      "PORTAINER_API_KEY": "***",
-      "PORTAINER_ENDPOINT_ID": "3",
-      "OPENROUTER_API_KEY": "***"
-    },
-    "home_size_bytes": 5893238959,
-    "scripts": [
-      "wiki_debug.py",
-      "wiki_audit.py",
-      "wiki_debug2.py",
-      "wiki_ingest.py",
-      "wiki_lint.py",
-      "mcp_cli_adapter.py",
-      "wiki_ingest_compute.py",
-      "wiki_ingest_mark.py",
-      "wiki_ingest_worker.py"
+    "env_count": 5
+   },
+   "wolfram-alpha": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "WOLFRAM_ALPHA_APPID",
+     "WOLFRAM_ALPHA_TIMEOUT",
+     "TOOL_SCRIPT",
+     "TOOL_SERVER_NAME"
     ],
-    "plugins": {
-      "enabled": [
-        "vikunja",
-        "wiki-browser"
-      ],
-      "disabled": [
-        "hermes-android",
-        "spotify"
-      ],
-      "entries": {
-        "hermes-android": {
-          "allow_tool_override": false
-        },
-        "wiki-browser": {
-          "allow_tool_override": false
-        }
-      }
-    },
-    "cron_jobs": [
-      {
-        "name": "arXiv",
-        "skill": "arxiv",
-        "model": "qwen3.6-27b-mtp",
-        "schedule": {
-          "kind": "interval",
-          "minutes": 10080,
-          "display": "every 10080m"
-        },
-        "enabled": true,
-        "last_status": "ok"
-      },
-      {
-        "name": "Wiki Ingestion Worker (4am/4pm)",
-        "skill": null,
-        "model": "qwen3.8-27b",
-        "schedule": {
-          "kind": "cron",
-          "expr": "0 4,16 * * *",
-          "display": "0 4,16 * * *"
-        },
-        "enabled": false,
-        "last_status": "ok"
-      },
-      {
-        "name": "Wiki Maintenance (bi-weekly)",
-        "skill": null,
-        "model": "qwen3.6-27b-mtp",
-        "schedule": {
-          "kind": "cron",
-          "expr": "0 3 * * 0",
-          "display": "0 3 * * 0"
-        },
-        "enabled": true,
-        "last_status": "ok"
-      },
-      {
-        "name": "Math Projects Worker",
-        "skill": "vikunja",
-        "model": "qwen3.8-27b",
-        "schedule": {
-          "kind": "cron",
-          "expr": "20 */2 * * *",
-          "display": "20 */2 * * *"
-        },
-        "enabled": false,
-        "last_status": "ok"
-      },
-      {
-        "name": "OptimizationInNorm Daily Synthesis",
-        "skill": "vikunja",
-        "model": "qwen3.8-27b",
-        "schedule": {
-          "kind": "cron",
-          "expr": "30 3 * * *",
-          "display": "30 3 * * *"
-        },
-        "enabled": false,
-        "last_status": "ok"
-      }
+    "env_count": 4
+   },
+   "lightrag-query": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "LIGHTRAG_URL",
+     "LIGHTRAG_ALT_URL",
+     "LIGHTRAG_TIMEOUT",
+     "LIGHTRAG_API_KEY",
+     "TOOL_SCRIPT",
+     "TOOL_SERVER_NAME"
     ],
-    "session_count": 0,
-    "key_config_sections": {
-      "model": {
-        "default": "qwen3.8-27b",
-        "provider": "lmstudio",
-        "base_url": "http://localhost:1234/v1"
-      },
-      "terminal": {
-        "cwd": "/home/YOUR-USER/Code/Python/"
-      },
-      "plugins": {
-        "enabled": [
-          "vikunja",
-          "wiki-browser"
-        ],
-        "disabled": [
-          "hermes-android",
-          "spotify"
-        ],
-        "entries": {
-          "hermes-android": {
-            "allow_tool_override": false
-          },
-          "wiki-browser": {
-            "allow_tool_override": false
-          }
-        }
-      },
-      "kanban": {
-        "orchestrator_profile": "math",
-        "default_assignee": "math"
-      },
-      "code_execution": {
-        "mode": "project"
-      },
-      "desktop": {},
-      "approvals": {
-        "mode": "off",
-        "timeout": 600
-      },
-      "hooks": {},
-      "platforms": {},
-      "image_gen": {
-        "use_gateway": true
-      },
-      "memory": {
-        "provider": "honcho"
-      },
-      "context": {
-        "engine": "compressor"
-      },
-      "moa": {
-        "max_tokens": 4096,
-        "fanout": "per_iteration",
-        "enabled": true,
-        "degraded_reference_policy": "loud"
-      }
-    },
-    "profile_size_bytes": 8865763855
+    "env_count": 6
+   },
+   "siyuan": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "SIYUAN_URL",
+     "SIYUAN_TOKEN",
+     "TOOL_SCRIPT",
+     "TOOL_SERVER_NAME"
+    ],
+    "env_count": 4
+   },
+   "zimi": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "ZIMI_URL",
+     "ZIMI_ALT_URL",
+     "ZIMI_TIMEOUT",
+     "TOOL_SCRIPT",
+     "TOOL_SERVER_NAME"
+    ],
+    "env_count": 5
+   },
+   "searxng": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "SEARXNG_URL"
+    ],
+    "env_count": 1
+   },
+   "zotero": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "ZOTERO_LIBRARY_TYPE",
+     "ZOTERO_LIBRARY_ID",
+     "ZOTERO_API_KEY",
+     "ZOTERO_BIB_PATH",
+     "TOOL_SCRIPT",
+     "TOOL_SERVER_NAME"
+    ],
+    "env_count": 6
+   },
+   "scientific-coding": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "SANDBOX_CPU_SECONDS",
+     "SANDBOX_MEM_MB",
+     "SIYUAN_URL",
+     "SIYUAN_TOKEN",
+     "TOOL_SCRIPT",
+     "TOOL_SERVER_NAME"
+    ],
+    "env_count": 6
+   },
+   "lean4": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "HOME",
+     "PATH"
+    ],
+    "env_count": 2
+   },
+   "sagemath": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "SAGE_TIMEOUT",
+     "PATH"
+    ],
+    "env_count": 2
+   },
+   "latex-manuscript": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "LATEX_COMPILER",
+     "LATEX_GLOSSARY_GROUP",
+     "TOOL_SCRIPT",
+     "TOOL_SERVER_NAME"
+    ],
+    "env_count": 4
+   },
+   "calibre": {
+    "command": "",
+    "env_keys": [
+     "CALIBRE_LIBRARY_PATH"
+    ],
+    "env_count": 1
+   }
   },
-  "librarian": {
-    "profile_yaml_desc": "Manage and maintain books and articles.",
-    "total_skills_resarch": 26,
-    "total_skills_productivity": 11,
-    "disabled_skills": [
-      "calibre",
-      "context-budget-audit",
-      "differential-sdp",
-      "docx",
-      "dogfood",
-      "dsdp-extension-workflow",
-      "github",
-      "github-auth",
-      "github-repo-management",
-      "inspecting-hermes-desktop-dom",
-      "irene-rewrite-dev",
-      "lean4",
-      "lean4-goedel-agent",
-      "llama-cpp",
-      "local-model-delegation",
-      "merge-reconciler",
-      "node-inspect-debugger",
-      "opencode",
-      "powerpoint",
-      "project-bib",
-      "rss-feeds",
-      "sagemath-mcp",
-      "scientific-coding",
-      "sdlc-review",
-      "session-librarian",
-      "sympy-mcp",
-      "test-driven-development",
-      "workspace-doc-hierarchy"
-    ],
-    "mcp_servers": {
-      "vikunja": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "VIKUNJA_URL",
-          "VIKUNJA_ALT_URL",
-          "VIKUNJA_TOKEN",
-          "TOOL_SCRIPT",
-          "TOOL_SERVER_NAME"
-        ],
-        "env_count": 5
-      },
-      "wolfram-alpha": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "WOLFRAM_ALPHA_APPID",
-          "WOLFRAM_ALPHA_TIMEOUT",
-          "TOOL_SCRIPT",
-          "TOOL_SERVER_NAME"
-        ],
-        "env_count": 4
-      },
-      "lightrag-query": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "LIGHTRAG_URL",
-          "LIGHTRAG_ALT_URL",
-          "LIGHTRAG_TIMEOUT",
-          "LIGHTRAG_API_KEY",
-          "TOOL_SCRIPT",
-          "TOOL_SERVER_NAME"
-        ],
-        "env_count": 6
-      },
-      "siyuan": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "SIYUAN_URL",
-          "SIYUAN_TOKEN",
-          "TOOL_SCRIPT",
-          "TOOL_SERVER_NAME"
-        ],
-        "env_count": 4
-      },
-      "zimi": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "ZIMI_URL",
-          "ZIMI_ALT_URL",
-          "ZIMI_TIMEOUT",
-          "TOOL_SCRIPT",
-          "TOOL_SERVER_NAME"
-        ],
-        "env_count": 5
-      },
-      "searxng": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "SEARXNG_URL"
-        ],
-        "env_count": 1
-      },
-      "zotero": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "ZOTERO_LIBRARY_TYPE",
-          "ZOTERO_LIBRARY_ID",
-          "ZOTERO_API_KEY",
-          "ZOTERO_BIB_PATH",
-          "TOOL_SCRIPT",
-          "TOOL_SERVER_NAME"
-        ],
-        "env_count": 6
-      },
-      "scientific-coding": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "SANDBOX_CPU_SECONDS",
-          "SANDBOX_MEM_MB",
-          "SIYUAN_URL",
-          "SIYUAN_TOKEN",
-          "TOOL_SCRIPT",
-          "TOOL_SERVER_NAME"
-        ],
-        "env_count": 6
-      },
-      "lean4": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "HOME",
-          "PATH"
-        ],
-        "env_count": 2
-      },
-      "sagemath": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "SAGE_TIMEOUT",
-          "PATH"
-        ],
-        "env_count": 2
-      },
-      "latex-manuscript": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "LATEX_COMPILER",
-          "LATEX_GLOSSARY_GROUP",
-          "TOOL_SCRIPT",
-          "TOOL_SERVER_NAME"
-        ],
-        "env_count": 4
-      },
-      "hermes-irene": {
-        "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
-        "env_keys": [
-          "LIGHTRAG_URL",
-          "LIGHTRAG_ALT_URL",
-          "LIGHTRAG_TIMEOUT",
-          "IRENE_SOURCE_DIR"
-        ],
-        "env_count": 4
-      },
-      "calibre": {
-        "command": "/home/YOUR-USER/Code/Python/tools/calibre-mcp/.venv/bin/python",
-        "env_keys": [
-          "CALIBRE_BASE_URL",
-          "CALIBRE_LIBRARY_PATH"
-        ],
-        "env_count": 2
-      }
-    },
-    "env_vars": {
-      "VIKUNJA_URL": "http://YOUR-HOST:3456",
-      "VIKUNJA_ALT_URL": "http://YOUR-DDNS-HOST:3456",
-      "VIKUNJA_TOKEN": "***",
-      "LIGHTRAG_URL": "http://YOUR-HOST:9621",
-      "LIGHTRAG_ALT_URL": "http://YOUR-DDNS-HOST:9621",
-      "LIGHTRAG_TIMEOUT": "20",
-      "LIGHTRAG_API_KEY": "***",
-      "WOLFRAM_ALPHA_APPID": "***",
-      "WOLFRAM_ALPHA_TIMEOUT": "20",
-      "WOLFRAM_ALPHA_RESULT_URL": "https://api.wolframalpha.com/v1/result",
-      "WOLFRAM_ALPHA_QUERY_URL": "https://api.wolframalpha.com/v2/query",
-      "WOLFRAM_ALPHA_VALIDATE_URL": "https://api.wolframalpha.com/v2/validatequery",
-      "SEARXNG_URL": "http://YOUR-HOST:5050",
-      "SEARXNG_ALT_URL": "http://YOUR-DDNS-HOST:5050",
-      "SEARXNG_TIMEOUT": "15",
-      "ZIMI_URL": "http://YOUR-HOST:8899",
-      "ZIMI_ALT_URL": "http://YOUR-DDNS-HOST:8899",
-      "ZIMI_TIMEOUT": "20",
-      "ZOTERO_API_KEY": "***",
-      "ZOTERO_LIBRARY_ID": "ZOTERO_LIBRARY_ID",
-      "ZOTERO_LIBRARY_TYPE": "user",
-      "SIYUAN_URL": "http://YOUR-HOST:6806",
-      "SIYUAN_TOKEN": "***",
-      "SIYUAN_NOTEBOOK": "",
-      "SAGE_TIMEOUT": "60",
-      "SANDBOX_CPU_SECONDS": "30",
-      "SANDBOX_MEM_MB": "512",
-      "LEAN4_TIMEOUT": "60",
-      "LEAN4_ALLOW_SCRATCH": "true",
-      "LEAN4_STRICT_PROJECT": "false",
-      "SUDO_PASSWORD": "***",
-      "TAVILY_API_KEY": "***",
-      "HONCHO_BASE_URL": "http://YOUR-HOST:8008/",
-      "LM_BASE_URL": "http://YOUR-HOST:1234",
-      "HF_TOKEN": "***",
-      "HF_BASE_URL": "https://router.huggingface.co/v1",
-      "OPENCODE_GO_API_KEY": "***",
-      "OPENCODE_ZEN_API_KEY": "***",
-      "GITHUB_TOKEN": "***",
-      "PORTAINER_URL": "http://YOUR-HOST:9000",
-      "PORTAINER_API_KEY": "***",
-      "PORTAINER_ENDPOINT_ID": "3"
-    },
-    "home_size_bytes": 0,
-    "scripts": [],
-    "plugins": {
-      "enabled": [
-        "vikunja",
-        "wiki-browser"
-      ],
-      "disabled": [
-        "hermes-android",
-        "spotify"
-      ],
-      "entries": {
-        "hermes-android": {
-          "allow_tool_override": false
-        },
-        "wiki-browser": {
-          "allow_tool_override": false
-        }
-      }
-    },
-    "cron_jobs": [],
-    "session_count": 0,
-    "key_config_sections": {
-      "model": {
-        "default": "qwen3.8-27b",
-        "provider": "lmstudio",
-        "base_url": "http://localhost:1234/v1",
-        "api_mode": "chat_completions"
-      },
-      "terminal": {
-        "cwd": "/home/YOUR-USER/Code/"
-      },
-      "plugins": {
-        "enabled": [
-          "vikunja",
-          "wiki-browser"
-        ],
-        "disabled": [
-          "hermes-android",
-          "spotify"
-        ],
-        "entries": {
-          "hermes-android": {
-            "allow_tool_override": false
-          },
-          "wiki-browser": {
-            "allow_tool_override": false
-          }
-        }
-      },
-      "kanban": {
-        "orchestrator_profile": "math",
-        "default_assignee": "math"
-      },
-      "code_execution": {
-        "mode": "project"
-      },
-      "desktop": {},
-      "compression": {
-        "threshold": 0.6
-      },
-      "telemetry": {},
-      "approvals": {
-        "mode": "off"
-      },
-      "hooks": {},
-      "image_gen": {
-        "use_gateway": true
-      },
-      "memory": {
-        "provider": "honcho"
-      },
-      "context": {
-        "engine": "compressor"
-      },
-      "moa": {
-        "max_tokens": 4096,
-        "fanout": "per_iteration",
-        "enabled": true,
-        "degraded_reference_policy": "loud"
-      }
-    },
-    "profile_size_bytes": 173896996
+  "env_vars": {
+   "VIKUNJA_URL": "http://YOUR-HOST:3456",
+   "VIKUNJA_ALT_URL": "http://YOUR-DDNS-HOST:3456",
+   "VIKUNJA_TOKEN": "***",
+   "LIGHTRAG_URL": "http://YOUR-HOST:9621",
+   "LIGHTRAG_ALT_URL": "http://YOUR-DDNS-HOST:9621",
+   "LIGHTRAG_TIMEOUT": "20",
+   "LIGHTRAG_API_KEY": "***",
+   "WOLFRAM_ALPHA_APPID": "***",
+   "WOLFRAM_ALPHA_TIMEOUT": "20",
+   "WOLFRAM_ALPHA_RESULT_URL": "https://api.wolframalpha.com/v1/result",
+   "WOLFRAM_ALPHA_QUERY_URL": "https://api.wolframalpha.com/v2/query",
+   "WOLFRAM_ALPHA_VALIDATE_URL": "https://api.wolframalpha.com/v2/validatequery",
+   "SEARXNG_URL": "http://YOUR-HOST:5050",
+   "SEARXNG_ALT_URL": "http://YOUR-DDNS-HOST:5050",
+   "SEARXNG_TIMEOUT": "15",
+   "ZIMI_URL": "http://YOUR-HOST:8899",
+   "ZIMI_ALT_URL": "http://YOUR-DDNS-HOST:8899",
+   "ZIMI_TIMEOUT": "20",
+   "ZOTERO_API_KEY": "***",
+   "ZOTERO_LIBRARY_ID": "ZOTERO_LIBRARY_ID",
+   "ZOTERO_LIBRARY_TYPE": "user",
+   "SIYUAN_URL": "http://YOUR-HOST:6806",
+   "SIYUAN_TOKEN": "***",
+   "SIYUAN_NOTEBOOK": "",
+   "SAGE_TIMEOUT": "60",
+   "SANDBOX_CPU_SECONDS": "30",
+   "SANDBOX_MEM_MB": "512",
+   "LEAN4_TIMEOUT": "60",
+   "LEAN4_ALLOW_SCRATCH": "true",
+   "LEAN4_STRICT_PROJECT": "false",
+   "TELEGRAM_BOT_TOKEN": "***",
+   "SUDO_PASSWORD": "***",
+   "TAVILY_API_KEY": "***",
+   "HONCHO_BASE_URL": "http://YOUR-HOST:8008/",
+   "LM_BASE_URL": "http://YOUR-HOST:1234",
+   "HF_TOKEN": "***",
+   "HF_BASE_URL": "https://router.huggingface.co/v1",
+   "OPENCODE_GO_API_KEY": "***",
+   "OPENCODE_ZEN_API_KEY": "***",
+   "GITHUB_TOKEN": "***",
+   "WHATSAPP_MODE": "self-chat",
+   "WHATSAPP_DM_POLICY": "pairing",
+   "WHATSAPP_ENABLED": "true",
+   "WHATSAPP_ALLOWED_USERS": "13067166104",
+   "TELEGRAM_ALLOWED_USERS": "155989134",
+   "PORTAINER_URL": "http://YOUR-HOST:9000",
+   "PORTAINER_API_KEY": "***",
+   "PORTAINER_ENDPOINT_ID": "3",
+   "OPENROUTER_API_KEY": "***"
   },
-  "_diff": {
-    "env_math_only": [
-      "OPENROUTER_API_KEY",
-      "TELEGRAM_ALLOWED_USERS",
-      "TELEGRAM_BOT_TOKEN",
-      "WHATSAPP_ALLOWED_USERS",
-      "WHATSAPP_DM_POLICY",
-      "WHATSAPP_ENABLED",
-      "WHATSAPP_MODE"
-    ],
-    "env_librarian_only": [],
-    "skill_disabled_diff": [
-      "reddit-reading"
-    ],
-    "skill_disabled_in_librarian_only": [
-      "context-budget-audit",
-      "differential-sdp",
-      "dsdp-extension-workflow",
-      "github",
-      "github-repo-management",
-      "inspecting-hermes-desktop-dom",
-      "irene-rewrite-dev",
-      "lean4",
-      "lean4-goedel-agent",
-      "local-model-delegation",
-      "project-bib",
-      "sagemath-mcp",
-      "scientific-coding",
-      "sdlc-review",
-      "session-librarian",
-      "sympy-mcp",
-      "workspace-doc-hierarchy"
-    ],
-    "mcp_diff": {
-      "calibre": {
-        "math_cmd": "",
-        "lib_cmd": "/home/YOUR-USER/Code/Python/tools/calibre-mcp/.venv/bin/python"
-      }
+  "home_size_bytes": 5893238959,
+  "scripts": [
+   "wiki_debug.py",
+   "wiki_audit.py",
+   "wiki_debug2.py",
+   "wiki_ingest.py",
+   "wiki_lint.py",
+   "mcp_cli_adapter.py",
+   "wiki_ingest_compute.py",
+   "wiki_ingest_mark.py",
+   "wiki_ingest_worker.py"
+  ],
+  "plugins": {
+   "enabled": [
+    "vikunja",
+    "wiki-browser"
+   ],
+   "disabled": [
+    "hermes-android",
+    "spotify"
+   ],
+   "entries": {
+    "hermes-android": {
+     "allow_tool_override": false
+    },
+    "wiki-browser": {
+     "allow_tool_override": false
     }
+   }
+  },
+  "cron_jobs": [
+   {
+    "name": "arXiv",
+    "skill": "arxiv",
+    "model": "qwen3.6-27b-mtp",
+    "schedule": {
+     "kind": "interval",
+     "minutes": 10080,
+     "display": "every 10080m"
+    },
+    "enabled": true,
+    "last_status": "ok"
+   },
+   {
+    "name": "Wiki Ingestion Worker (4am/4pm)",
+    "skill": null,
+    "model": "qwen3.8-27b",
+    "schedule": {
+     "kind": "cron",
+     "expr": "0 4,16 * * *",
+     "display": "0 4,16 * * *"
+    },
+    "enabled": false,
+    "last_status": "ok"
+   },
+   {
+    "name": "Wiki Maintenance (bi-weekly)",
+    "skill": null,
+    "model": "qwen3.6-27b-mtp",
+    "schedule": {
+     "kind": "cron",
+     "expr": "0 3 * * 0",
+     "display": "0 3 * * 0"
+    },
+    "enabled": true,
+    "last_status": "ok"
+   },
+   {
+    "name": "Math Projects Worker",
+    "skill": "vikunja",
+    "model": "qwen3.8-27b",
+    "schedule": {
+     "kind": "cron",
+     "expr": "20 */2 * * *",
+     "display": "20 */2 * * *"
+    },
+    "enabled": false,
+    "last_status": "ok"
+   },
+   {
+    "name": "OptimizationInNorm Daily Synthesis",
+    "skill": "vikunja",
+    "model": "qwen3.8-27b",
+    "schedule": {
+     "kind": "cron",
+     "expr": "30 3 * * *",
+     "display": "30 3 * * *"
+    },
+    "enabled": false,
+    "last_status": "ok"
+   }
+  ],
+  "session_count": 0,
+  "key_config_sections": {
+   "model": {
+    "default": "qwen3.8-27b",
+    "provider": "lmstudio",
+    "base_url": "http://localhost:1234/v1"
+   },
+   "terminal": {
+    "cwd": "/home/YOUR-USER/Code/Python/"
+   },
+   "plugins": {
+    "enabled": [
+     "vikunja",
+     "wiki-browser"
+    ],
+    "disabled": [
+     "hermes-android",
+     "spotify"
+    ],
+    "entries": {
+     "hermes-android": {
+      "allow_tool_override": false
+     },
+     "wiki-browser": {
+      "allow_tool_override": false
+     }
+    }
+   },
+   "kanban": {
+    "orchestrator_profile": "math",
+    "default_assignee": "math"
+   },
+   "code_execution": {
+    "mode": "project"
+   },
+   "desktop": {},
+   "approvals": {
+    "mode": "off",
+    "timeout": 600
+   },
+   "hooks": {},
+   "platforms": {},
+   "image_gen": {
+    "use_gateway": true
+   },
+   "memory": {
+    "provider": "honcho"
+   },
+   "context": {
+    "engine": "compressor"
+   },
+   "moa": {
+    "max_tokens": 4096,
+    "fanout": "per_iteration",
+    "enabled": true,
+    "degraded_reference_policy": "loud"
+   }
+  },
+  "profile_size_bytes": 8865763855
+ },
+ "librarian": {
+  "profile_yaml_desc": "Manage and maintain books and articles.",
+  "total_skills_resarch": 26,
+  "total_skills_productivity": 11,
+  "disabled_skills": [
+   "calibre",
+   "context-budget-audit",
+   "docx",
+   "dogfood",
+   "github",
+   "github-auth",
+   "github-repo-management",
+   "inspecting-hermes-desktop-dom",
+   "lean4",
+   "lean4-goedel-agent",
+   "llama-cpp",
+   "local-model-delegation",
+   "merge-reconciler",
+   "node-inspect-debugger",
+   "opencode",
+   "powerpoint",
+   "project-bib",
+   "rss-feeds",
+   "sagemath-mcp",
+   "scientific-coding",
+   "sdlc-review",
+   "session-librarian",
+   "sympy-mcp",
+   "test-driven-development",
+   "workspace-doc-hierarchy"
+  ],
+  "mcp_servers": {
+   "vikunja": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "VIKUNJA_URL",
+     "VIKUNJA_ALT_URL",
+     "VIKUNJA_TOKEN",
+     "TOOL_SCRIPT",
+     "TOOL_SERVER_NAME"
+    ],
+    "env_count": 5
+   },
+   "wolfram-alpha": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "WOLFRAM_ALPHA_APPID",
+     "WOLFRAM_ALPHA_TIMEOUT",
+     "TOOL_SCRIPT",
+     "TOOL_SERVER_NAME"
+    ],
+    "env_count": 4
+   },
+   "lightrag-query": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "LIGHTRAG_URL",
+     "LIGHTRAG_ALT_URL",
+     "LIGHTRAG_TIMEOUT",
+     "LIGHTRAG_API_KEY",
+     "TOOL_SCRIPT",
+     "TOOL_SERVER_NAME"
+    ],
+    "env_count": 6
+   },
+   "siyuan": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "SIYUAN_URL",
+     "SIYUAN_TOKEN",
+     "TOOL_SCRIPT",
+     "TOOL_SERVER_NAME"
+    ],
+    "env_count": 4
+   },
+   "zimi": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "ZIMI_URL",
+     "ZIMI_ALT_URL",
+     "ZIMI_TIMEOUT",
+     "TOOL_SCRIPT",
+     "TOOL_SERVER_NAME"
+    ],
+    "env_count": 5
+   },
+   "searxng": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "SEARXNG_URL"
+    ],
+    "env_count": 1
+   },
+   "zotero": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "ZOTERO_LIBRARY_TYPE",
+     "ZOTERO_LIBRARY_ID",
+     "ZOTERO_API_KEY",
+     "ZOTERO_BIB_PATH",
+     "TOOL_SCRIPT",
+     "TOOL_SERVER_NAME"
+    ],
+    "env_count": 6
+   },
+   "scientific-coding": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "SANDBOX_CPU_SECONDS",
+     "SANDBOX_MEM_MB",
+     "SIYUAN_URL",
+     "SIYUAN_TOKEN",
+     "TOOL_SCRIPT",
+     "TOOL_SERVER_NAME"
+    ],
+    "env_count": 6
+   },
+   "lean4": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "HOME",
+     "PATH"
+    ],
+    "env_count": 2
+   },
+   "sagemath": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "SAGE_TIMEOUT",
+     "PATH"
+    ],
+    "env_count": 2
+   },
+   "latex-manuscript": {
+    "command": "/home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python",
+    "env_keys": [
+     "LATEX_COMPILER",
+     "LATEX_GLOSSARY_GROUP",
+     "TOOL_SCRIPT",
+     "TOOL_SERVER_NAME"
+    ],
+    "env_count": 4
+   },
+   "calibre": {
+    "command": "/home/YOUR-USER/Code/Python/tools/calibre-mcp/.venv/bin/python",
+    "env_keys": [
+     "CALIBRE_BASE_URL",
+     "CALIBRE_LIBRARY_PATH"
+    ],
+    "env_count": 2
+   }
+  },
+  "env_vars": {
+   "VIKUNJA_URL": "http://YOUR-HOST:3456",
+   "VIKUNJA_ALT_URL": "http://YOUR-DDNS-HOST:3456",
+   "VIKUNJA_TOKEN": "***",
+   "LIGHTRAG_URL": "http://YOUR-HOST:9621",
+   "LIGHTRAG_ALT_URL": "http://YOUR-DDNS-HOST:9621",
+   "LIGHTRAG_TIMEOUT": "20",
+   "LIGHTRAG_API_KEY": "***",
+   "WOLFRAM_ALPHA_APPID": "***",
+   "WOLFRAM_ALPHA_TIMEOUT": "20",
+   "WOLFRAM_ALPHA_RESULT_URL": "https://api.wolframalpha.com/v1/result",
+   "WOLFRAM_ALPHA_QUERY_URL": "https://api.wolframalpha.com/v2/query",
+   "WOLFRAM_ALPHA_VALIDATE_URL": "https://api.wolframalpha.com/v2/validatequery",
+   "SEARXNG_URL": "http://YOUR-HOST:5050",
+   "SEARXNG_ALT_URL": "http://YOUR-DDNS-HOST:5050",
+   "SEARXNG_TIMEOUT": "15",
+   "ZIMI_URL": "http://YOUR-HOST:8899",
+   "ZIMI_ALT_URL": "http://YOUR-DDNS-HOST:8899",
+   "ZIMI_TIMEOUT": "20",
+   "ZOTERO_API_KEY": "***",
+   "ZOTERO_LIBRARY_ID": "ZOTERO_LIBRARY_ID",
+   "ZOTERO_LIBRARY_TYPE": "user",
+   "SIYUAN_URL": "http://YOUR-HOST:6806",
+   "SIYUAN_TOKEN": "***",
+   "SIYUAN_NOTEBOOK": "",
+   "SAGE_TIMEOUT": "60",
+   "SANDBOX_CPU_SECONDS": "30",
+   "SANDBOX_MEM_MB": "512",
+   "LEAN4_TIMEOUT": "60",
+   "LEAN4_ALLOW_SCRATCH": "true",
+   "LEAN4_STRICT_PROJECT": "false",
+   "SUDO_PASSWORD": "***",
+   "TAVILY_API_KEY": "***",
+   "HONCHO_BASE_URL": "http://YOUR-HOST:8008/",
+   "LM_BASE_URL": "http://YOUR-HOST:1234",
+   "HF_TOKEN": "***",
+   "HF_BASE_URL": "https://router.huggingface.co/v1",
+   "OPENCODE_GO_API_KEY": "***",
+   "OPENCODE_ZEN_API_KEY": "***",
+   "GITHUB_TOKEN": "***",
+   "PORTAINER_URL": "http://YOUR-HOST:9000",
+   "PORTAINER_API_KEY": "***",
+   "PORTAINER_ENDPOINT_ID": "3"
+  },
+  "home_size_bytes": 0,
+  "scripts": [],
+  "plugins": {
+   "enabled": [
+    "vikunja",
+    "wiki-browser"
+   ],
+   "disabled": [
+    "hermes-android",
+    "spotify"
+   ],
+   "entries": {
+    "hermes-android": {
+     "allow_tool_override": false
+    },
+    "wiki-browser": {
+     "allow_tool_override": false
+    }
+   }
+  },
+  "cron_jobs": [],
+  "session_count": 0,
+  "key_config_sections": {
+   "model": {
+    "default": "qwen3.8-27b",
+    "provider": "lmstudio",
+    "base_url": "http://localhost:1234/v1",
+    "api_mode": "chat_completions"
+   },
+   "terminal": {
+    "cwd": "/home/YOUR-USER/Code/"
+   },
+   "plugins": {
+    "enabled": [
+     "vikunja",
+     "wiki-browser"
+    ],
+    "disabled": [
+     "hermes-android",
+     "spotify"
+    ],
+    "entries": {
+     "hermes-android": {
+      "allow_tool_override": false
+     },
+     "wiki-browser": {
+      "allow_tool_override": false
+     }
+    }
+   },
+   "kanban": {
+    "orchestrator_profile": "math",
+    "default_assignee": "math"
+   },
+   "code_execution": {
+    "mode": "project"
+   },
+   "desktop": {},
+   "compression": {
+    "threshold": 0.6
+   },
+   "telemetry": {},
+   "approvals": {
+    "mode": "off"
+   },
+   "hooks": {},
+   "image_gen": {
+    "use_gateway": true
+   },
+   "memory": {
+    "provider": "honcho"
+   },
+   "context": {
+    "engine": "compressor"
+   },
+   "moa": {
+    "max_tokens": 4096,
+    "fanout": "per_iteration",
+    "enabled": true,
+    "degraded_reference_policy": "loud"
+   }
+  },
+  "profile_size_bytes": 173896996
+ },
+ "_diff": {
+  "env_math_only": [
+   "OPENROUTER_API_KEY",
+   "TELEGRAM_ALLOWED_USERS",
+   "TELEGRAM_BOT_TOKEN",
+   "WHATSAPP_ALLOWED_USERS",
+   "WHATSAPP_DM_POLICY",
+   "WHATSAPP_ENABLED",
+   "WHATSAPP_MODE"
+  ],
+  "env_librarian_only": [],
+  "skill_disabled_diff": [
+   "reddit-reading"
+  ],
+  "skill_disabled_in_librarian_only": [
+   "context-budget-audit",
+   "github",
+   "github-repo-management",
+   "inspecting-hermes-desktop-dom",
+   "lean4",
+   "lean4-goedel-agent",
+   "local-model-delegation",
+   "project-bib",
+   "sagemath-mcp",
+   "scientific-coding",
+   "sdlc-review",
+   "session-librarian",
+   "sympy-mcp",
+   "workspace-doc-hierarchy"
+  ],
+  "mcp_diff": {
+   "calibre": {
+    "math_cmd": "",
+    "lib_cmd": "/home/YOUR-USER/Code/Python/tools/calibre-mcp/.venv/bin/python"
+   }
   }
+ }
 }

@@ -42,7 +42,7 @@ If you ever see backslash doubling (a regression), immediately revert with
 message "File unchanged since last read." The dedup mechanism prevents
 re-reading a file it already served, even when you're asking for different
 line ranges or offsets.  This also affects `.py` files (e.g., large
-implementation files under `Irene/`) and `.bib` bibliography files.
+implementation files) and `.bib` bibliography files.
 
 **Fix:** Use `terminal` with `sed` to read specific line ranges:
 
@@ -91,7 +91,7 @@ When INSERTING a new section into an existing manuscript, the theorem
 environments you write must match the names the manuscript actually
 declares in its preamble — not the short aliases that happen to be
 conventional. A manuscript may declare `theorem`/`remark`/`example` while
-the ghasemi-latex-style convention names them `thm`/`rem`/`exm`. Using the
+the user-latex-style convention names them `thm`/`rem`/`exm`. Using the
 alias that is NOT declared produces a hard `Environment ... undefined`
 compile error, one per environment.
 

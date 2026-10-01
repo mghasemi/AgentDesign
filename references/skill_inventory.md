@@ -1,6 +1,6 @@
 # Skill Inventory — math vs librarian (extracted 2026-09-29)
 
-Per-profile SKILL.md count: **math=57**, **librarian=57**; union=**59** (only-in-math: `irene-rewrite-dev`, `research/exact-symbolic-gate-scripts`; only-in-librarian: `productivity/calibre-library-ingestion`, `productivity/djvu-to-pdf`).
+Per-profile SKILL.md count: **math=54**, **librarian=55**; union=**56** (only-in-math: `research/exact-symbolic-gate-scripts`; only-in-librarian: `productivity/calibre-library-ingestion`, `productivity/djvu-to-pdf`).
 
 Status legend: **E** enabled · **D** disabled via `skills.disabled` (in profile tree) · **d** disabled name matches a *bundled-pool* skill (`~/.hermes/skills/`, 103 skills) not present in the profile tree · **P** phantom — no matching skill directory anywhere · **−** absent from this profile.
 
@@ -8,10 +8,8 @@ Status legend: **E** enabled · **D** disabled via `skills.disabled` (in profile
 
 | Skill (path relative to `skills/`) | math | librarian |
 |---|:-:|:-:|
-| `differential-sdp` | E | D |
-| `ghasemi-latex-style` | E | E |
+| `user-latex-style` | E | E |
 | `hermes-plugin-management` | E | E |
-| `irene-rewrite-dev` | E | - |
 | `semantic-scholar` | E | E |
 | `workspace-doc-hierarchy` | E | D |
 
@@ -40,7 +38,6 @@ Status legend: **E** enabled · **D** disabled via `skills.disabled` (in profile
 
 | Skill (path relative to `skills/`) | math | librarian |
 |---|:-:|:-:|
-| `mlops/dsdp-extension-workflow` | E | D |
 | `mlops/inference/llama-cpp` | D | D |
 | `mlops/lmstudio-configuration` | E | E |
 | `mlops/pocketbase` | E | E |
@@ -139,15 +136,12 @@ Status legend: **E** enabled · **D** disabled via `skills.disabled` (in profile
 |---|---|
 | `calibre` | **⚠ PHANTOM** |
 | `context-budget-audit` | **⚠ PHANTOM** |
-| `differential-sdp` | **⚠ PHANTOM** |
 | `docx` | pool |
 | `dogfood` | pool |
-| `dsdp-extension-workflow` | **⚠ PHANTOM** |
 | `github` | in-tree |
 | `github-auth` | pool |
 | `github-repo-management` | pool |
 | `inspecting-hermes-desktop-dom` | pool |
-| `irene-rewrite-dev` | **⚠ PHANTOM** |
 | `lean4` | **⚠ PHANTOM** |
 | `lean4-goedel-agent` | **⚠ PHANTOM** |
 | `llama-cpp` | pool |

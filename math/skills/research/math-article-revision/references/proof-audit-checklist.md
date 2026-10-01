@@ -77,7 +77,7 @@ Wide summary tables overflow page margins. Fix pattern:
 ### 6. External Reviewer Critiques: Disposition Before Editing
 
 A detailed review arriving as numbered critiques must NOT be applied wholesale —
-parts of such reviews are themselves wrong. Workflow (worked instance: DSDP
+parts of such reviews are themselves wrong. Workflow (worked instance: a truncation-theory
 truncation theory pass 5, 2026-08-14):
 
 1. **Verify each critique against the CURRENT file text.** Reviews are often

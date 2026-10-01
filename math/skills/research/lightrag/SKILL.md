@@ -7,7 +7,7 @@ license: MIT
 metadata:
   hermes:
     tags: [lightrag, rag, literature, knowledge-graph, graph-rag, academic, research]
-    related_skills: [simplerag, vikunja, arxiv, academic-research-hub, semantic-scholar]
+    related_skills: [vikunja, arxiv, academic-research-hub, semantic-scholar]
 ---
 
 # LightRAG — Graph-RAG Literature Knowledge Base

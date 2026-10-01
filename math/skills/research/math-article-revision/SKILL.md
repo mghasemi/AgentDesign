@@ -1,10 +1,10 @@
 ---
 name: math-article-revision
 description: "Use when revising math LaTeX articles. Multi-edit workflow."
-related_skills: [ghasemi-latex-style, latex-manuscript]
+related_skills: [user-latex-style, latex-manuscript]
 ---
 
-**Prerequisite**: Load `ghasemi-latex-style` before any content edits. It defines the authoritative conventions — `amsart` class, theorem environment names, macro hierarchy, colored hyperlinks, and prose tone. When adding new theorems, environments, or bibliography entries, follow that skill's patterns exactly.
+**Prerequisite**: Load `user-latex-style` before any content edits. It defines the authoritative conventions — `amsart` class, theorem environment names, macro hierarchy, colored hyperlinks, and prose tone. When adding new theorems, environments, or bibliography entries, follow that skill's patterns exactly.
 
 # Math Article Revision
 
@@ -74,6 +74,14 @@ script to a file with `write_file` and run `python3 script.py` (the file
 path is echoed in the block message for review). Small single-purpose
 heredocs usually pass (auto-approved); the block fires on oversized/compound
 payloads.
+
+**A single oversized write stalls with nothing written.** The same size ceiling applies to a
+`write_file`/`execute_code` payload that carries a whole appendix (several multi-row tables) in one
+call: it can stall mid-stream and land nothing at all. Build long inserted sections as several small
+calls that each insert *before* a unique anchor (e.g. `%====\n\section*{Sources and Verification}`),
+which appends them in order, and assert `t.count(anchor) == 1` in every call so a drifting anchor
+fails loudly instead of writing to the wrong place. Progress survives a stalled call; one giant call
+loses the whole section.
 
 Three patterns cover most editing needs:
 
@@ -199,8 +207,18 @@ Replacement bodies are `r'''...'''` with single TeX backslashes, identical
 to source. Apply bottom-up. Recipe: `references/line-splice-restructure.md`
 (§ Many small splices).
 
-**Critical**: Use raw strings for all LaTeX content. Python's `\b`, `\t`,
-`\n` in non-raw strings corrupt `\textbf`, `\tilde`, `\begin`, etc.
+**Critical — pick the string type by what the LaTeX needs, and stay consistent inside it.**
+In a NON-raw string, Python's `\b`, `\t`, `\n` corrupt `\textbf`, `\tilde`,
+`\begin`, so every LaTeX backslash must be escaped (`"\\mono{x}"`). In a RAW string
+the opposite holds: write a SINGLE backslash per command (`r"\mono{x}"`). Writing
+`\\mono` inside `r"""..."""` emits a literal `\\` (a TeX line break) followed by
+the bare word `mono`, and the document fails far from the edit —
+`! Undefined control sequence` / "There's no line here to end" — because a whole
+paragraph of prose (every `\item`, `\textbf`, `\mono`) was written in the table-row
+convention. Table ROW TERMINATORS are the one place a raw string legitimately wants a
+doubled backslash (`... & done \\`); when one batch mixes prose fragments and table
+rows, keep the two conventions straight per fragment, and after writing, normalize any
+run of three or more trailing backslashes on a line to exactly two.
 **Quote delimiters must match the shape of the string**: a single-quoted
 `r"..."` cannot contain a literal newline — any edit chunk that spans lines
 must use triple quotes (`r"""..."""`). Mixing the two is a silent trap: an
@@ -317,7 +335,7 @@ compiles silently because citation keys are just labels:
    `grep -c OldKey paper.tex` must equal (# `\cite` occurrences + 1 bibitem);
    replace ALL occurrences, then assert the old key is gone.
 2. **Replace the entry body** with the full journal reference — initials first,
-   `\emph{title}`, `{\bf vol}` (year), no., pages — per ghasemi-latex-style.
+   `\emph{title}`, `{\bf vol}` (year), no., pages — per user-latex-style.
 3. **Compile + pymupdf-verify the NEW venue/vol/year/pages render** (e.g. "J. Math.
    Anal. Appl.") and the OLD line (bare "arXiv:….") is gone — same polarity +
    prose-substring discipline as the removal check above.
@@ -537,7 +555,7 @@ Full worked instance (two audit rounds, all edits, verification):
 
 A distinct review type from math-correctness: a referee or the author flags
 that the prose reads like a tech report or slide deck. The fix has five
-parts, all in one pass (full mapping table in `ghasemi-latex-style` §10):
+parts, all in one pass (full mapping table in `user-latex-style` §10):
 1. Replace CS/engineering/benchmark jargon with classical terminology
    ("flat-extension rank gate" → "flat extension condition", "type
    signature" → "degree constraint", "testbed" → "canonical example",
@@ -807,8 +825,8 @@ doubled `\\\\varprojlim` that compile nowhere and break the ledger.
 
 When asked to "check if this proof is correct" — or when a proof-audit
 report flags items for repair — use this class-level workflow. A full
-worked instance (DSDP truncation theory, 4 repair passes in one session)
-lives in the `differential-sdp` skill's
+worked instance (a truncation-theory manuscript, 4 repair passes in one session)
+lives in the project's own notes:
 `references/truncation-theory-proof-audit.md`. A second worked instance
 (MomentSheaf, 2026-08-31: mixed-atom case missing from a stalk
 extreme-ray classification; three silent holes in a descent
@@ -957,9 +975,8 @@ nonnegativity, use the power-mean lemma chain. The complete proof pattern
 
 ### Replacing SDP Claims with Formal Proofs
 
-When a manuscript relies on SDP decomposition (Irene) as the sole evidence
+When a manuscript relies on an SDP decomposition as the sole evidence
 for SOS membership, systematically upgrade or qualify those claims. The
-three-tier replacement pattern is in `references/sdp-to-formal-proof.md`:
 1. Explicit rational SOS → replace SDP entirely
 2. Formal inequality proof + SDP caveat
 3. Computational evidence with explicit limitations
@@ -1022,6 +1039,22 @@ for block in blocks:
             if "target" in line_text.lower():
                 print(f"Found via font search: {line_text}")
 ```
+
+### `pdftotext -layout` interleaves wrapped table cells — a false "missing" verdict
+
+`pdftotext -layout` emits a table row **column-band by column-band**: when a cell's text wraps, its
+continuation is printed *after* the other columns' text on the following line. A whole-document
+`item in text` search therefore reports items that ARE present as missing, and the false negative
+reads as a content defect in the document.
+
+- To verify that every item of a list or table reached the PDF, rebuild the band instead: take the
+  first `N` characters of each line in the table's region, join, strip whitespace, and search that
+  (`re.sub(r'\s+', '', ''.join(l[:N] for l in region.split('\n')))`, with `N` just past the column's
+  right edge). Extracting without `-layout` is the cheaper alternative.
+- Compare the SOURCE row count against the rendered count as the primary check; treat any
+  whole-text search as secondary evidence.
+- The same interleaving makes a narrowed `p{}` column look as though it clipped its content —
+  confirm a suspected clip against the source row before editing the table.
 
 ### Semantic purge: fix the CLAIM, not the quoted string
 
@@ -1086,6 +1119,37 @@ measure the real text block first (pymupdf block bboxes: `max(x1)-min(x0)`
 over the body text ≈ the true `\textwidth`) and size against that. Confirm by
 re-grepping the log for `Overfull` at the table's line range; an empty-content
 `Overfull \hbox` at the table's lines is the tabular's own width, not a cell.
+
+**Triage the log before fixing anything.** The log repeats each warning once per pass and
+`latexmk` runs several passes, so a raw `grep -c Overfull` overstates the damage several-fold.
+Count UNIQUE regions and rank them:
+
+```bash
+grep -o "Overfull \\hbox ([0-9.]*pt too wide) in paragraph at lines [0-9]*--[0-9]*" out.log | sort -u
+```
+
+Fix >10pt (real, usually introduced by your edit); fix 3–10pt if cheap (a reword or an
+`\allowbreak`); leave <3pt and title-page/`\vbox` warnings as template-inherent, and say so in
+the handoff rather than risking a structural edit for a cosmetic point.
+
+**The usual cause is a long unbreakable token in a narrow column.** An `X`/`p{}` column wraps
+prose but cannot break `\mono{references/build\_profile\_packs.py}`, a full interpreter path, or an
+`mcp__server__tool` name — one such token in a 3cm column costs 20–100pt. Either shorten the token
+(name the directory and let the prose carry the filename) or make it breakable:
+`\mono{references/\allowbreak build\_profile\_packs.py}`. The same applies to long tokens in prose.
+
+**Professional multi-column spec** for design/comparison tables: fix the side columns to a
+ragged-right width and let one `X` column absorb the slack —
+`{@{}>{\raggedright\arraybackslash}p{3.1cm} X >{\raggedright\arraybackslash}p{3.1cm}@{}}`.
+Without `\raggedright\arraybackslash` a narrow `p{}` column with one long word overflows anyway.
+Replace `\star`-style severity ratings with words (critical/high/medium/low) and `24E/1D`
+shorthand with text — a professional table reads as prose in its cells.
+
+**Over-wide tikzpicture**: nodes laid out with negative offsets or wide `minimum width` overflow by
+40–50pt even though each node fits. Cap it with
+`\resizebox{\textwidth}{!}{%` … `\end{tikzpicture}}` instead of hand-tuning the geometry (it scales
+down when too wide and up when narrower). Count the opener first — `\begin{tikzpicture}[` and
+`\begin{figure}[H]` appear in several figures and `str.replace` wraps them all.
 
 ### Verifying that removed content is actually gone
 
@@ -1197,6 +1261,34 @@ classification in the theorem body. Then grep the WHOLE `.tex` for the
 phrase: the same negative claim is usually repeated in a
 synthesis/correspondence theorem that restates the classification, and every
 site must be purged together.
+
+### `\ref` to an unnumbered section resolves to the wrong number
+
+`\label` after `\section*{}` records the value of the section counter, which a starred heading does
+NOT increment — so the reference silently resolves to whatever numbered section precedes it, with no
+warning from the compiler. Appending `\appendix` turned a `\ref{sec:sources}` in an executive summary
+into "Section B.3" (the last subsection of the last appendix).
+
+Reference a starred section by name in prose, or make it numbered. After adding appendices — or any
+starred section — audit mechanically: collect the labels attached to `\section*{}` and assert no
+`\ref` uses one.
+
+### Insert-before-an-opener edits hit EVERY occurrence
+
+`str.replace(old, new)` replaces all occurrences, and an edit that *inserts* a wrapper
+around an existing opener is where that bites silently: wrapping one
+`\begin{tikzpicture}` in `\resizebox{\textwidth}{!}{%` also wrapped the second figure's,
+leaving the first unclosed. Nothing fails at the edit site — the run dies at the end with
+`! File ended while scanning use of \Gscale@box@dd` (or `\emph`, or whichever command
+owned the brace), which points at the last line of the file rather than the edit. Before
+any insert-before/around-an-opener edit, assert `content.count(opener) == 1` and fall back
+to a longer unique context; never assume a common opener (`\begin{figure}`, `\section{`,
+`\begin{tikzpicture}[`) appears once.
+
+Related trap when undoing an over-applied insertion: re-replacing the inserted line with
+the original text DUPLICATES it (the original is still there on the next line), producing
+a doubled opener and a new error. Delete the inserted line by index instead of
+re-substituting the region, then re-read the region before the next edit.
 
 ### `\newcommand` Double-Subscript Errors
 

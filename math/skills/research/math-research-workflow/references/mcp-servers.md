@@ -82,7 +82,7 @@ MCP calls are faster and don't spawn a shell.
 
 **Prefer terminal** for:
 - Multi-step workflows where you need to inspect intermediate output
-- Tools not registered as MCP (academic-research-hub, simplerag-memory, calibre, pdf-extract-lite)
+- Tools not registered as MCP (academic-research-hub, calibre, pdf-extract-lite)
 - Debugging failed calls (terminal shows raw stderr)
 
 ## Config Location

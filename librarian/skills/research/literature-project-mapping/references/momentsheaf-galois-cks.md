@@ -35,4 +35,4 @@ Wiki entity: `entities/cimpric-kuhlmann-scheiderer-equivariant-moment-2008.md` (
 6. CKS is NOT Galois descent: A^G ⊂ A is a subring (Hilbert finite generation), not a finite extension with fixed ring A — "equivariant sibling" of §7, not a special case.
 
 ## Pending manuscript actions (staged in #728, NOT executed)
-(a) cite CKS 2008 in §7 as related work + bibliography entry; (b) one sentence in Problem (11) naming CKS Thm 4.1–4.2 as the compact positive-descent precedent; (c) optional Thm 7.9 sufficiency remark via CKS §5; (d) make "CKS ≠ Galois descent" explicit. Each edit: ghasemi-latex-style pass + claims ledger update.
+(a) cite CKS 2008 in §7 as related work + bibliography entry; (b) one sentence in Problem (11) naming CKS Thm 4.1–4.2 as the compact positive-descent precedent; (c) optional Thm 7.9 sufficiency remark via CKS §5; (d) make "CKS ≠ Galois descent" explicit. Each edit: user-latex-style pass + claims ledger update.

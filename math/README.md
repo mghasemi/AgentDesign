@@ -54,7 +54,7 @@ These are shared infrastructure, expected to exist on the target machine:
 
 Credentials, endpoints, hostnames, local paths and personal identity (name, handle,
 author IDs) are replaced with placeholders throughout. Skill *names* are kept verbatim
-(e.g. `ghasemi-latex-style`), because other files reference them by name — renaming one
+(e.g. `user-latex-style`), because other files reference them by name — renaming one
 would break the tree.
 
 ## Excluded on purpose
@@ -66,3 +66,9 @@ and telemetry bookkeeping files are left out as well — `.usage.json`, `.bundle
 `.curator_state`, `.curator_suppressed`, `.curator_ledger.jsonl` — since they record one
 installation's history rather than the profile's design. Hermes recreates the runtime
 state on first start.
+
+This pack is also **generalized**: skills tied to one user's research projects, and the worked-example
+notes that belonged to them, are not shipped; the project-pinned MCP
+server registration is removed, and the house LaTeX style is renamed to
+`user-latex-style`. Everything else — the configuration, the registrations, the
+remaining skills — is as it stands in the source profile.

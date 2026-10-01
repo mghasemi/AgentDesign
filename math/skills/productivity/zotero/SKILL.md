@@ -17,7 +17,7 @@ Use this skill to manage the research bibliography: add papers discovered during
 ## When Not to Use
 
 - Do not use to retrieve full paper text — use academic-research-hub or lightrag for that.
-- Do not use for note-taking — use siyuan or simplerag-memory.
+- Do not use for note-taking — use siyuan.
 
 ## Commands
 

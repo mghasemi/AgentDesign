@@ -1,10 +1,10 @@
 ---
 name: math-article-revision
 description: "Use when revising math LaTeX articles. Multi-edit workflow."
-related_skills: [ghasemi-latex-style, latex-manuscript]
+related_skills: [user-latex-style, latex-manuscript]
 ---
 
-**Prerequisite**: Load `ghasemi-latex-style` before any content edits. It defines the authoritative conventions — `amsart` class, theorem environment names, macro hierarchy, colored hyperlinks, and prose tone. When adding new theorems, environments, or bibliography entries, follow that skill's patterns exactly.
+**Prerequisite**: Load `user-latex-style` before any content edits. It defines the authoritative conventions — `amsart` class, theorem environment names, macro hierarchy, colored hyperlinks, and prose tone. When adding new theorems, environments, or bibliography entries, follow that skill's patterns exactly.
 
 # Math Article Revision
 
@@ -280,7 +280,7 @@ compiles silently because citation keys are just labels:
    `grep -c OldKey paper.tex` must equal (# `\cite` occurrences + 1 bibitem);
    replace ALL occurrences, then assert the old key is gone.
 2. **Replace the entry body** with the full journal reference — initials first,
-   `\emph{title}`, `{\bf vol}` (year), no., pages — per ghasemi-latex-style.
+   `\emph{title}`, `{\bf vol}` (year), no., pages — per user-latex-style.
 3. **Compile + pymupdf-verify the NEW venue/vol/year/pages render** (e.g. "J. Math.
    Anal. Appl.") and the OLD line (bare "arXiv:….") is gone — same polarity +
    prose-substring discipline as the removal check above.
@@ -663,8 +663,8 @@ doubled `\\\\varprojlim` that compile nowhere and break the ledger.
 
 When asked to "check if this proof is correct" — or when a proof-audit
 report flags items for repair — use this class-level workflow. A full
-worked instance (DSDP truncation theory, 4 repair passes in one session)
-lives in the `differential-sdp` skill's
+worked instance (a truncation-theory manuscript, 4 repair passes in one session)
+lives in the project's own notes:
 `references/truncation-theory-proof-audit.md`. A second worked instance
 (MomentSheaf, 2026-08-31: mixed-atom case missing from a stalk
 extreme-ray classification; three silent holes in a descent
@@ -813,9 +813,8 @@ nonnegativity, use the power-mean lemma chain. The complete proof pattern
 
 ### Replacing SDP Claims with Formal Proofs
 
-When a manuscript relies on SDP decomposition (Irene) as the sole evidence
+When a manuscript relies on an SDP decomposition as the sole evidence
 for SOS membership, systematically upgrade or qualify those claims. The
-three-tier replacement pattern is in `references/sdp-to-formal-proof.md`:
 1. Explicit rational SOS → replace SDP entirely
 2. Formal inequality proof + SDP caveat
 3. Computational evidence with explicit limitations

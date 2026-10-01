@@ -7,7 +7,7 @@ license: MIT
 metadata:
   hermes:
     tags: [math, research, pipeline, verification, GoA, reflexion, literature, proof]
-    related_skills: [ghasemi-latex-style, lightrag, simplerag-memory, sympy-mcp, sagemath-mcp, wolfram-alpha, lean4, scientific-coding, academic-research-hub, semantic-scholar, zimi, searxng, zotero, calibre, siyuan, vikunja, latex-manuscript, ocr-and-documents]
+    related_skills: [user-latex-style, lightrag, sympy-mcp, sagemath-mcp, wolfram-alpha, lean4, scientific-coding, academic-research-hub, semantic-scholar, zimi, searxng, zotero, calibre, siyuan, vikunja, latex-manuscript, ocr-and-documents]
 ---
 
 # Mathematical Research Workflow (Single-Agent Adaptation)
@@ -57,7 +57,7 @@ Registered MCP servers: vikunja, wolfram-alpha, lightrag,
 siyuan, zimi, searxng, sympy-mcp, zotero,
 latex-manuscript, scientific-coding.
 Not registered: lean4 (no binary), sagemath-mcp (no binary),
-academic-research-hub, semantic-scholar, simplerag-memory, calibre,
+academic-research-hub, semantic-scholar, calibre,
 ocr-and-documents (terminal-only).
 
 ## Core Principles
@@ -97,7 +97,7 @@ After every stage, self-audit the output against these checks:
 1. **Logical Consistency** — Every claim consistent with Wolfram|Alpha and/or
    Lean4 verification. No contradictions.
 2. **Notation Consistency** — All symbols used as defined. No drift in meaning
-   across sections. Query SimpleRAG `math-notation-glossary` group.
+   across sections. Query the shared notation glossary.
 3. **Originality** — No section is pure restatement of a known source without
    synthesis or attribution. Query LightRAG for >80% overlap checks.
 4. **Citation Completeness & Verification** — Every factual claim has a source.
@@ -129,15 +129,7 @@ tracking infrastructure.
    python3 /home/YOUR-USER/.hermes/profiles/math/skills/productivity/vikunja/vikunja_tool.py projects create --title "MathAgent: <project name>"
    python3 /home/YOUR-USER/.hermes/profiles/math/skills/productivity/vikunja/vikunja_tool.py tasks create --project-id <id> --title "Stage 1: Problem decomposition"
    ```
-4. Log problem statement and decomposition to SimpleRAG:
-   ```
-   bash /home/YOUR-USER/.hermes/profiles/math/skills/research/simplerag-memory/scripts/simplerag_client.sh store --group "project-<slug>" --text "<problem statement and decomposition>"
-   ```
-5. Query shared-insights for prior related work:
-   ```
-   bash /home/YOUR-USER/.hermes/profiles/math/skills/research/simplerag-memory/scripts/simplerag_client.sh query --group shared-insights --text "<research question>"
-   ```
-6. **Hypothesis tree** (when the problem admits multiple attack routes):
+4. **Hypothesis tree** (when the problem admits multiple attack routes):
    structure it in Vikunja — parent task = the conjecture/question, one
    child task per attack branch. Each branch carries an explicit status in
    its description: `open` / `active` / `dead (reason)` / `resolved (result)`.
@@ -213,11 +205,6 @@ Are assumptions explicit? **Human sign-off required** before Stage 2.
    ### Papers Ingested into LightRAG
    ### Follow-up Questions for Stage 3
    ```
-11. Save report to SimpleRAG:
-    ```
-    bash /home/YOUR-USER/.hermes/profiles/math/skills/research/simplerag-memory/scripts/simplerag_client.sh store --group "project-<slug>" --text "<synthesis report>"
-    ```
-
 **Gate**: Reflexion check — are all claims source-backed? Any contradictions
 unresolved? Run the Citation Verification Gate below. **Human sign-off required
 before Stage 3.**
@@ -352,11 +339,6 @@ network or token dependency.
 6. Any failed computation follows the **Error-Feedback Loop**: capture exact
    error, feed back as hard context, budget 3 retries, then record in the
    **Failure Scratchpad** and switch tool or escalate.
-7. Log all results to SimpleRAG:
-   ```
-   bash /home/YOUR-USER/.hermes/profiles/math/skills/research/simplerag-memory/scripts/simplerag_client.sh store --group "project-<slug>-insights" --text "<computation result>"
-   ```
-
 **Gate**: Reflexion check — do symbolic and empirical results agree? Any
 numerical contradictions? **Human sign-off required** before Stage 4.
 
@@ -405,7 +387,7 @@ theorem gets an explicit status in the project **claims ledger**.
    ```
    python3 /home/YOUR-USER/.hermes/profiles/math/skills/productivity/zotero/zotero_tool.py sync-bib --output refs.bib
    ```
-3. Generate `.tex` following the conventions in `ghasemi-latex-style`:
+3. Generate `.tex` following the conventions in `user-latex-style`:
    ```latex
    \documentclass{amsart}
    \usepackage{amsmath, amssymb, mathrsfs, verbatim}
@@ -505,16 +487,7 @@ unavailability (flag it, don't halt).
 
 **Actions**:
 1. Run full 5-check Reflexion audit on the complete manuscript
-2. Store reflexion certificate to SimpleRAG:
-   ```
-   bash /home/YOUR-USER/.hermes/profiles/math/skills/research/simplerag-memory/scripts/simplerag_client.sh store --group project-<slug>-checkpoints --text "<reflexion certificate>"
-   ```
-3. Extract FoT (Federation over Text) insights — non-obvious findings,
-   shortcuts, failure patterns — and propagate to shared-insights:
-   ```
-   bash /home/YOUR-USER/.hermes/profiles/math/skills/research/simplerag-memory/scripts/simplerag_client.sh store --group shared-insights --text "<FoT insight>"
-   ```
-4. Close Vikunja project tasks — and convert every open review finding lacking a disposition into an *open* Vikunja task:
+2. Close Vikunja project tasks — and convert every open review finding lacking a disposition into an *open* Vikunja task:
    ```
    python3 /home/YOUR-USER/.hermes/profiles/math/skills/productivity/vikunja/vikunja_tool.py tasks complete <task_id>
    python3 /home/YOUR-USER/.hermes/profiles/math/skills/productivity/vikunja/vikunja_tool.py tasks create --project-id <id> --title "<open finding>"
@@ -580,8 +553,6 @@ root at runtime.
 ### Infrastructure
 | Tool | Command | MCP (prefer for single calls) |
 |------|---------|------|
-| SimpleRAG store | `bash .../simplerag-memory/scripts/simplerag_client.sh store --group "<g>" --text "<t>"` | terminal-only |
-| SimpleRAG query | `bash .../simplerag-memory/scripts/simplerag_client.sh query --group "<g>" --text "<q>"` | terminal-only |
 | Vikunja create project | `python3 .../vikunja/vikunja_tool.py projects create --title "<name>"` | `mcp_vikunja_projects_create` |
 | Vikunja create task | `python3 .../vikunja/vikunja_tool.py tasks create --project-id <id> --title "<title>"` | `mcp_vikunja_tasks_create` |
 | LaTeX compile | `python3 .../latex-manuscript/latex_tool.py compile <file>` | `mcp_latex-manuscript_compile` |
@@ -599,11 +570,6 @@ Copy these from the default `.env` or set them in the math profile `.env`:
 export LIGHTRAG_URL="http://YOUR-HOST:9621"
 export LIGHTRAG_ALT_URL="http://YOUR-DDNS-HOST:9621"
 export LIGHTRAG_TIMEOUT="20"
-export SIMPLERAG_URL="http://YOUR-HOST:7000"
-export SIMPLERAG_PRIMARY_URL="http://YOUR-HOST:7000"
-export SIMPLERAG_FALLBACK_URL="http://YOUR-DDNS-HOST:7000"
-export SIMPLERAG_LOCAL_URL="http://127.0.0.1:7000"
-export SIMPLERAG_FAILURE_GROUP="coding-failures"
 export SEARXNG_URL="http://YOUR-HOST:5050/"
 export WOLFRAM_ALPHA_APPID="<your-appid>"
 export VIKUNJA_URL="http://YOUR-HOST:3456"

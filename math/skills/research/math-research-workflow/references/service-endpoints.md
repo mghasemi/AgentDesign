@@ -12,12 +12,12 @@ All services run on `YOUR-HOST` with DDNS fallback `YOUR-DDNS-HOST`.
                      │   YOUR-DDNS-HOST (WAN fallback)  │
                      └─────────────────────────────────────┘
                                       │
-        ┌─────────┬─────────┬─────────┼─────────┬─────────┬─────────┬─────────┐
+        ┌─────────┬─────────┬─────────┬─────────┬─────────┬─────────┬─────────┐
         │         │         │         │         │         │         │         │
-     :9621     :7000     :8899     :5050     :3456     :6806     :8080     :????
-    LightRAG  SimpleRAG   ZIMI    SearXNG   Vikunja   SiYuan   Calibre   Zotero
-    (graph    (vector   (offline  (meta-    (task     (notes)  (ebooks)  (bib,
-     RAG)     memory)    wiki)    search)   mgmt)                        web API)
+     :9621     :8899     :5050     :3456     :6806     :8080     :????
+    LightRAG   ZIMI    SearXNG   Vikunja   SiYuan   Calibre   Zotero
+    (graph    (offline  (meta-    (task     (notes)  (ebooks)  (bib,
+     RAG)      wiki)    search)   mgmt)                        web API)
 ```
 
 ## Service Status
@@ -25,7 +25,6 @@ All services run on `YOUR-HOST` with DDNS fallback `YOUR-DDNS-HOST`.
 | Service      | Port  | URL                                   | Auth      | Status |
 |-------------|-------|---------------------------------------|-----------|--------|
 | LightRAG    | 9621  | `http://YOUR-HOST:9621`           | optional  | ✅     |
-| SimpleRAG   | 7000  | `http://YOUR-HOST:7000`           | none      | ✅     |
 | ZIMI        | 8899  | `http://YOUR-HOST:8899`           | none      | ✅     |
 | SearXNG     | 5050  | `http://YOUR-HOST:5050/`          | none      | ✅     |
 | Vikunja     | 3456  | `http://YOUR-HOST:3456`           | token     | ✅     |
@@ -43,11 +42,6 @@ VIKUNJA_URL       = http://YOUR-HOST:3456
 VIKUNJA_ALT_URL   = http://YOUR-DDNS-HOST:3456
 VIKUNJA_TOKEN     = (set)
 
-SIMPLERAG_URL             = http://YOUR-HOST:7000
-SIMPLERAG_PRIMARY_URL     = http://YOUR-HOST:7000
-SIMPLERAG_FALLBACK_URL    = http://YOUR-DDNS-HOST:7000
-SIMPLERAG_LOCAL_URL       = http://127.0.0.1:7000
-SIMPLERAG_BASE_URL        = (empty)
 
 LIGHTRAG_URL      = http://YOUR-HOST:9621
 LIGHTRAG_ALT_URL  = http://YOUR-DDNS-HOST:9621
@@ -81,6 +75,5 @@ Most tools implement a 3-tier fallback:
 2. Alt URL (DDNS)
 3. Graceful failure (tool reports `success: false` instead of crashing)
 
-The `simplerag_client.sh` helper additionally checks `SIMPLERAG_LOCAL_URL` (loopback)
-before failing. The `zimi_tool.py` and `lightrag_query_tool.py` Python wrappers
+The `zimi_tool.py` and `lightrag_query_tool.py` Python wrappers
 fall back from primary to alt URL automatically.

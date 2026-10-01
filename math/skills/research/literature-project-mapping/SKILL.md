@@ -18,14 +18,14 @@ project: locate it in the wiki, map its concepts onto the project's manuscript/
 source documents at THEOREM level, verify metadata, encode the connection into
 the Vikunja plan, and cross-link the wiki page. Executed end-to-end for
 Cimprič–Kuhlmann–Scheiderer 2008 → MomentSheaf (2026-09-01); same shape has
-served symmetric-algebras → MomentSheaf and jet/prolongation → DSDP.
+served symmetric-algebras → one project and jet/prolongation → another.
 
 ## When to Use
 
 - User asks to "check the concepts related to X in project Y" / "find the
   connections" / "see if there are relations in the wiki"
 - A paper was just ingested into the wiki and needs linking to an active
-  project (MomentSheaf, Mean Polynomial, DSDP, …)
+  project (the workspace's active projects)
 - User asks to "update the plan" / "update the tasks" with the found relations
 - User asks whether a paper/note is "worth combining into project X or should be a
   separate project"
@@ -189,8 +189,7 @@ claims into a manuscript; at most seed a separate project from its framing.
 - `references/momentsheaf-galois-cks.md` — MomentSheaf §7 theorem map, Vikunja
   #27 correspondence structure, CKS 2008 six-connection analysis (2026-09-01).
   Example of the theorem-level output this workflow should produce.
-- `references/external-method-fit-assessment.md` — dependency-manifest
-  classifier, layered-verdict template, and the worked Irene ↔ Sum2d/BKM
-  boundary (what Irene is and is not, the Σ_{2d} = CP(2d) connection, the
+  classifier, layered-verdict template, and the worked backend ↔ method
+  boundary (what the backend is and is not, the Σ_{2d} = CP(2d) connection, the
   degenerate-parameterization test). Load when judging whether an external
-  algorithm or Julia/Python package belongs in Irene or in a sibling project.
+  algorithm or Julia/Python package belongs in the backend package or in a sibling project.

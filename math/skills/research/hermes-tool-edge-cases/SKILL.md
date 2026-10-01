@@ -44,7 +44,7 @@ If you ever see backslash doubling (a regression), immediately revert with
 message "File unchanged since last read." The dedup mechanism prevents
 re-reading a file it already served, even when you're asking for different
 line ranges or offsets.  This also affects `.py` files (e.g., large
-implementation files under `Irene/`) and `.bib` bibliography files.
+implementation files) and `.bib` bibliography files.
 
 **Fix:** Use `terminal` with `sed` to read specific line ranges:
 
@@ -93,7 +93,7 @@ When INSERTING a new section into an existing manuscript, the theorem
 environments you write must match the names the manuscript actually
 declares in its preamble — not the short aliases that happen to be
 conventional. A manuscript may declare `theorem`/`remark`/`example` while
-the ghasemi-latex-style convention names them `thm`/`rem`/`exm`. Using the
+the user-latex-style convention names them `thm`/`rem`/`exm`. Using the
 alias that is NOT declared produces a hard `Environment ... undefined`
 compile error, one per environment.
 
@@ -151,6 +151,88 @@ for i, page in enumerate(doc):
 ```
 
 Weak pages → render + vision (`pdftoppm -jpeg -r 150 -f N -l N file.pdf /tmp/page`, then `vision_analyze`) for a few pages, or marker-pdf for bulk OCR. If the document also exists remotely (arXiv `/pdf/` URL, publisher site), prefer `web_extract` on that PDF URL — the remote pipeline returned clean text from a 25-page scan in seconds where local extraction produced only garbage, with no multi-GB install.
+
+### Verifying Table Completeness in a Compiled PDF: `pdftotext -layout` Interleaves Wrapped Cells
+
+`pdftotext -layout` reproduces the visual grid, so when a cell's text wraps, the continuation lands
+on a *later* line while the rest of that line belongs to the neighbouring column. A naive
+`name in extracted_text` check therefore reports long identifiers as **missing from the PDF when they
+rendered perfectly** — the tell is that only long, hyphenated names "disappear" while short ones
+match. Reading-order extraction (`pdftotext` without `-layout`) does not fix it, and whitespace
+stripping does not either (the interleaved column text sits *between* the halves of the name).
+
+**Fix — reconstruct the column band, then match:**
+
+```python
+import re
+txt = open("/tmp/doc.txt").read()            # pdftotext -layout output
+i, j = txt.find("Table 19:"), txt.find("Table 20:")   # caption of the table, then the next one
+band = re.sub(r"\s+", "", "".join(l[:29] for l in txt[i:j].split("\n")))
+# 29 = first-column width in characters; calibrate on one known-good row
+assert "hermes-plugin-management" in band
+```
+
+Before concluding a row is missing, count the rows in the source (a table that rendered every row
+cannot have lost one) and check the *last* row of each table, where a dropped row would sit.
+
+### Never `\ref` an Unnumbered Section
+
+A `\label` inside a starred heading (`\section*{...}`) records whatever counter was last incremented,
+not a number for that section. Adding `\appendix` makes this fire: a `\section*{Sources}` placed after
+the appendices resolves to the last *subsection* of the final appendix, so `Section~\ref{sec:sources}`
+in an executive summary silently renders as "Section B.3".
+
+**Rule:** reference starred sections by name in prose ("the closing Sources note"), never via `\ref`.
+After adding an appendix or any `\section*`, re-check that every `\ref` target sits on a numbered
+heading:
+
+```python
+import re
+starred = set(re.findall(r"\\section\*\{[^}]*\}\\label\{([^}]+)\}", tex))
+refs    = set(re.findall(r"\\ref\{([^}]+)\}", tex))
+print("refs to starred sections:", refs & starred)      # must be empty
+```
+
+A dangling `\ref` compiles clean and the final pass still reports zero undefined references — the
+wrong number is the only symptom, so nothing in the log catches it.
+
+### Building a Long Section: Insert in Chunks Before a Stable Anchor
+
+One `execute_code` write carrying a whole appendix can exceed the transport limit and time out with
+the call never delivered. Build long content as **several small insertions before one fixed anchor
+line**, in order:
+
+```python
+anchor = "%=====\n\\section*{Sources and Verification}"
+t = open(p).read()
+assert t.count(anchor) == 1            # exactly one insertion point
+open(p, "w").write(t.replace(anchor, chunk + anchor))
+```
+
+Each chunk lands immediately before the anchor, so successive chunks accumulate in the intended order
+with no offset bookkeeping. Keep a chunk to a few KB (one table, or two or three paragraphs plus its
+table) and compile once at the end, not per chunk. The `assert t.count(anchor) == 1` guard is what
+makes repeated insertion safe — a duplicated anchor silently drops a chunk into the wrong region.
+
+### Re-Audit Derived Inventories Against the Live Source
+
+When documentation enumerates live state — registered servers and their tool counts, skill activation
+lists, container ports — a previously written inventory file is a *draft*, not evidence. A
+skill-activation inventory had mis-classified most disabled names as resolving in a shared pool; a
+fresh audit against the trees showed six of one profile's twelve resolving solely in the curator
+archive. Re-derive the enumeration in the session that publishes it, print the raw counts, and correct
+the earlier artifact in the same commit.
+
+### A Designated Template Outranks a Style Skill's Anti-Pattern List
+
+A style skill's forbidden-construct list is scoped to the document class it was written for. When the
+user names a different starting template for a deliverable, that template governs: its class, table
+style, sectioning depth, and whether appendices exist are the template's decisions. `user-latex-style`
+forbids `booktabs` rules, `\appendix` and `\subsection` nesting *in math manuscripts*; a profile/design
+document built from the proposal template legitimately uses all three, and stripping them to satisfy the
+style guide would be the error. Decide the scope first: editing a math manuscript → the style guide;
+building a document from a template the user supplied → the template, with the style guide used only for
+prose tone and math notation.
 
 ### `write_file` vs `patch` for Multi-Section LaTeX Edits
 
@@ -409,7 +491,7 @@ symptom is `ModuleNotFoundError` for a package the project venv definitely has
 (e.g. `sympy`) even though `<project>/.venv/bin/python -c "import sympy"`
 succeeds — the tell is that activation "worked" but the dependency is "missing".
 
-**Fix:** select the interpreter by path — `../Irene/.venv/bin/python script.py`
+**Fix:** select the interpreter by path — `../<package>/.venv/bin/python script.py`
 (also for `-c`, `-m pip list`, `-m pytest`). Confirm with `which python` or
 `python -c 'import sys; print(sys.executable)'` when a run behaves oddly.
 Exporting and reusing plain env *vars* across calls still works; it is the

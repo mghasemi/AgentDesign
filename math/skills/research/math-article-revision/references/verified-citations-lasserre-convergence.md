@@ -1,7 +1,7 @@
 # Verified citations: Lasserre convergence rates & differential Nullstellensatz
 
-All entries verified against publisher pages on 2026-08-14 (DSDP truncation-theory
-revision). Paste the bibitem forms verbatim; they follow the ghasemi-latex-style
+All entries verified against publisher pages on 2026-08-14 (truncation-theory
+revision). Paste the bibitem forms verbatim; they follow the user-latex-style
 manual `thebibliography` conventions.
 
 ## Finite convergence under regularity conditions

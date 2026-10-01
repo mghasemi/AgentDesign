@@ -240,16 +240,6 @@ mcp_servers:
       TOOL_SCRIPT: /home/YOUR-USER/.hermes/profiles/math/skills/productivity/latex-manuscript/latex_tool.py
       TOOL_SERVER_NAME: latex-manuscript
     timeout: 30
-  hermes-irene:
-    command: /home/YOUR-USER/.hermes/mcp-servers/.venv/bin/python
-    args:
-      - /home/YOUR-USER/Code/Python/IreneRewrite/scripts/hermes_mcp_tool.py
-    env:
-      LIGHTRAG_URL: http://YOUR-HOST:9621
-      LIGHTRAG_ALT_URL: http://YOUR-DDNS-HOST:9621
-      LIGHTRAG_TIMEOUT: '30'
-      IRENE_SOURCE_DIR: /home/YOUR-USER/Code/Python/IreneRewrite/Irene
-    enabled: false
   calibre:
     env:
       CALIBRE_LIBRARY_PATH: /home/YOUR-USER/mnt/calibre

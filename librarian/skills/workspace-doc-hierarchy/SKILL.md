@@ -26,11 +26,11 @@ Load this skill when:
 
 ### Structure
 ```
-Root AGENTS.md                          ← workspace-level overview, active projects list, Irene API reference
-├── ./positivstellensatz/AGENTS.md      ← subproject context (MP, DSDP, etc.)
+Root AGENTS.md                          ← workspace-level overview, active projects list
+├── ./<project>/AGENTS.md                ← subproject context
 │   ├── .../*.md                        ← individual subproject notes/drafts
 │   └── Sources/RoughIdeas/*            ← rough drafts (NOT rigorous facts)
-├── ./Irene/doc/*.rst                   ← package API documentation
+├── ./<package>/doc/*.rst                ← package API documentation
 └── DOX.md                              ← framework rules for the chain itself
 ```
 

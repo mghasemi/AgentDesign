@@ -2,7 +2,7 @@
 """Secure Python execution sandbox for scientific experiments.
 
 Enforces CPU and memory limits. Auto-logs successes to SiYuan and failures
-to SimpleRAG groups to prevent redundant re-runs.
+to the per-problem failure scratchpad to prevent redundant re-runs.
 """
 
 from __future__ import annotations
@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -53,7 +54,6 @@ SANDBOX_CPU_SECONDS = int(os.environ.get("SANDBOX_CPU_SECONDS", "30"))
 SANDBOX_MEM_MB = int(os.environ.get("SANDBOX_MEM_MB", "512"))
 SIYUAN_URL = os.environ.get("SIYUAN_URL", "")
 SIYUAN_TOKEN = os.environ.get("SIYUAN_TOKEN", "")
-SIMPLERAG_FAILURE_GROUP = os.environ.get("SIMPLERAG_FAILURE_GROUP", "coding-failures")
 
 
 def _fail(message: str, fmt: str = "text") -> None:
@@ -144,34 +144,47 @@ def _run_sandboxed(code: str, fmt: str) -> dict[str, Any]:
         }
 
 
-def _log_failure(label: str, code: str, error: str) -> bool:
-    tool = os.path.join(os.path.dirname(__file__), "..", "simplerag-memory", "scripts", "simplerag_client.sh")
-    if not os.path.isfile(tool):
-        return False
-    content = f"[coding-failure][{label}] error={error} | snippet={code[:500]}"
-    proc = subprocess.run(
-        ["bash", tool, "store", "--group", SIMPLERAG_FAILURE_GROUP, "--text", content],
-        capture_output=True,
-        text=True,
+def _scratchpad_root() -> str:
+    """Per-profile failure scratchpad, next to the profile's skills tree."""
+    return os.environ.get(
+        "FAILURE_SCRATCHPAD_DIR",
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "scratchpad")),
     )
-    return proc.returncode == 0
+
+
+def _log_failure(label: str, code: str, error: str) -> bool:
+    """Append one line to the per-problem failure scratchpad (no external service)."""
+    try:
+        slug = re.sub(r"[^a-z0-9]+", "-", label.lower()).strip("-") or "unlabelled"
+        d = os.path.join(_scratchpad_root(), slug)
+        os.makedirs(d, exist_ok=True)
+        stamp = time.strftime("%Y-%m-%d %H:%M:%S")
+        line = f"- [{stamp}] {label} | error={error} | snippet={code[:300]}\n"
+        with open(os.path.join(d, "failures.md"), "a", encoding="utf-8") as fh:
+            fh.write(line)
+        return True
+    except OSError:
+        return False
 
 
 def _query_failures(limit: int, label: str | None) -> str:
-    tool = os.path.join(os.path.dirname(__file__), "..", "simplerag-memory", "scripts", "simplerag_client.sh")
-    if not os.path.isfile(tool):
-        raise RuntimeError(f"SimpleRAG client not found at {tool}")
-    text = "coding-failure"
+    """Read back recent entries from the failure scratchpad."""
+    root = _scratchpad_root()
+    if not os.path.isdir(root):
+        return ""
+    slug = None
     if label:
-        text = f"coding-failure {label}"
-    proc = subprocess.run(
-        ["bash", tool, "query", "--group", SIMPLERAG_FAILURE_GROUP, "--text", text, "--k", str(limit)],
-        capture_output=True,
-        text=True,
-    )
-    if proc.returncode != 0:
-        raise RuntimeError(proc.stderr.strip() or "Failed to query SimpleRAG failure history")
-    return proc.stdout.strip()
+        slug = re.sub(r"[^a-z0-9]+", "-", label.lower()).strip("-")
+    rows = []
+    for d in sorted(os.listdir(root)):
+        if slug and d != slug:
+            continue
+        fp = os.path.join(root, d, "failures.md")
+        if not os.path.isfile(fp):
+            continue
+        with open(fp, encoding="utf-8", errors="ignore") as fh:
+            rows += [l.rstrip() for l in fh if l.strip()]
+    return "\n".join(rows[-limit:])
 
 
 def _log_siyuan(label: str, stdout: str) -> str | None:
@@ -278,7 +291,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_siy.add_argument("--content", default=None)
     p_siy.add_argument("--format", choices=["text", "json"], default="text")
 
-    p_fail = sub.add_parser("failures", help="Show recent coding failures from SimpleRAG")
+    p_fail = sub.add_parser("failures", help="Show recent coding failures from the scratchpad")
     p_fail.add_argument("--recent", type=int, default=10)
     p_fail.add_argument("--label", default=None)
     p_fail.add_argument("--format", choices=["text", "json"], default="text")

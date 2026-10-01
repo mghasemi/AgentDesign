@@ -3,7 +3,7 @@
 Session-verified bibliography entries (2026-08-14, primary sources checked via
 search + publisher pages) for remarks about convergence rates of the moment-SOS /
 Lasserre hierarchy — the cluster most often cited when refining worst-case
-Nie--Schweighofer bounds in DSDP / polynomial-optimization manuscripts.
+Nie--Schweighofer bounds in polynomial-optimization manuscripts.
 
 ## Citation map (what each paper actually proves)
 

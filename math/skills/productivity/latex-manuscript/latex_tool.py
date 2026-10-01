@@ -48,7 +48,6 @@ _load_emv()
 
 DEFAULT_COMPILER = os.environ.get("LATEX_COMPILER", "pdflatex")
 DEFAULT_GLOSSARY_GROUP = os.environ.get("LATEX_GLOSSARY_GROUP", "math-notation-glossary")
-SIMPLERAG_URL = os.environ.get("SIMPLERAG_URL", "http://YOUR-HOST:7000")
 
 
 def _fail(message: str, fmt: str = "text") -> None:

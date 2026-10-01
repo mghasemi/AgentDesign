@@ -276,7 +276,7 @@ Write to `entities/<slug>.md` with:
 - **Structured breakdown** — use tables for sections/approach, bullet lists for theorems/results
 - **Class of problem handled** — mathematical setting, assumptions, type of PDE/operator
 - **Numerical results** — truncation degrees, accuracy, computation times
-- **Relevance section** — connect to the user's active projects (DSDP, Mean Polynomials, SOS hierarchies) with specific cross-references to their existing work
+- **Relevance section** — connect to the active projects (each with its own name) with specific cross-references to their existing work
 - **Open questions** listed from the paper
 
 ### Phase 4: Update Index & Log
@@ -485,7 +485,6 @@ Worked example with the exact failing regexes and the 316→0 fix trajectory:
 ## Related References
 
 - `references/wiki-linting-pitfalls.md` — detailed YAML gotchas and lint script checklist
-- `references/paper-ingestion-example.md` — worked example: Henrion et al. arXiv:2305.18768 PDF → wiki, with DSDP relevance mapping and common pitfalls
 
 ## Pitfalls
 

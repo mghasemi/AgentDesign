@@ -1,11 +1,11 @@
 ---
 name: scientific-coding
-description: "Use when running Python experiments, simulations, or data analyses in a secure resource-limited sandbox. Captures stdout, stderr, and execution metadata. Auto-logs results to SiYuan and records failure context in SimpleRAG project groups to prevent redundant re-runs."
+description: "Use when running Python experiments, simulations, or data analyses in a secure resource-limited sandbox. Captures stdout, stderr, and execution metadata. Auto-logs results to SiYuan and records failure context in the per-problem failure scratchpad to prevent redundant re-runs."
 metadata: {"clawdbot":{"emoji":"🧪","requires":{"bins":["python3"]},"config":{"env":{"SANDBOX_CPU_SECONDS":{"description":"CPU time limit per run in seconds","default":"30","required":false},"SANDBOX_MEM_MB":{"description":"Memory limit per run in megabytes","default":"512","required":false},"SIYUAN_URL":{"description":"SiYuan API URL for auto-logging results","default":"","required":false},"SIYUAN_TOKEN":{"description":"SiYuan API token","default":"","required":false}}}}}
 ---
 # Scientific Coding Sandbox
 
-Use this skill to execute Python code for empirical experimentation in a resource-limited, isolated environment. The sandbox prevents runaway processes and network access. Results are auto-logged to SiYuan; failures are recorded to SimpleRAG project groups to prevent redundant re-runs.
+Use this skill to execute Python code for empirical experimentation in a resource-limited, isolated environment. The sandbox prevents runaway processes and network access. Results are auto-logged to SiYuan; failures are recorded to the per-problem failure scratchpad to prevent redundant re-runs.
 
 ## When to Use
 
@@ -133,120 +133,6 @@ repeatedly, fall back to `terminal` with `conda run -n sage python3`.
 The MCP can stall on long-running numerical work; the conda path via
 terminal is more reliable. Always use the `unset` preamble above.
 
-### Irene SDP benchmark comparison
-
-**ALWAYS use Irene's dedicated venv for SDP tasks** — do NOT use the sage conda
-environment:
-
-```bash
-cd /home/YOUR-USER/Code/Python/Irene
-# If Irene not installed in venv (ModuleNotFoundError):
-/home/YOUR-USER/Code/Python/Irene/.venv/bin/pip install -e .
-# Then run:
-/home/YOUR-USER/Code/Python/Irene/.venv/bin/python3 script.py
-```
-
-The dsdp_benchmark.json environment confirms `independent_from_sage: true`.
-
-When verifying Irene code changes that affect the SDP relaxation pipeline
-(DSDP, ADE constraints, KKT stationarity), use the benchmark comparison
-workflow in `references/irene_benchmark_comparison.md` — snapshot old
-JSON, re-run with venv, diff via execute_code. That reference also
-documents the KKT boundary-optimum regression pitfall (KKT at order ≤ 2
-degrades bounds for problems whose optimum lies on the domain boundary).
-
-### DSDP / ADE+SDP attack vectors
-
-When investigating numerical improvements for the Differential SDP
-framework, consult `references/ade_sdp_attack_vectors.md` — a ranked
-taxonomy of attack vectors (differential exponential ADE, Fourier moment
-matching, log-polynomial hierarchy, initial condition encoding) with
-feasibility scores, expected gaps, concrete experiment scripts, and
-literature references (Choi et al. 2026, Bach 2022).
-
-For formal ADE definitions (sinh/cosh, log, Bessel, Airy — first-order
-systems, differential ideals, invariants, initial conditions, and
-compactification notes), see `references/ade_sdp_formal_definitions.md`.
-
-### DSDP / ADE+SDP attack vector status
-
-Status updates based on experimental runs: `references/ade_sdp_attack_vector_status.md`.
-Records confirmed DEAD ENDS (derivative-coupled ADE, P7 d=3 timeout) and
-verified NEW mechanisms (dual-ADE technique, 55%→9.4% for exp-x²).
-
-### Dual-ADE technique (NEW — verified 2026-07-18)
-
-A Groebner-constrained derivative encoding that tightened exponential ADE
-bounds 6× (55% → 9.4%). See `references/ade_sdp_dual_ade_technique.md` for
-the full recipe, mechanism explanation, working/not-working table, and the
-critical `AddConstraint`-vs-`relations` distinction. Key insight: put
-derivative relations in Groebner (to constrain moment matrix) but the
-algebraic reciprocal in `AddConstraint` (to keep the auxiliary variable as
-a generator, NOT Groebner-eliminated). **Parallel=True is mandatory for
-d≥3** (sequential times out at 300s with 6+ generators).
-
-### Rational parameterization for non-compact varieties (NEW — verified 2026-07-18)
-
-Compaction technique that cures the hyperbolic function gap (sinh/cosh:
-2857% → 0.00005% at d=1). See `references/ade_sdp_rational_parameterization.md`
-for the full recipe. Uses stereographic projection to map the hyperbola
-$z^2-y^2=1$ to a compact bounded-parameter variety via $t = \\tanh(x/2)$.
-
-**⚠️ PITFALL — false positive risk (2026-07-18):** The rational
-parameterization can produce false positives if the box_size on `s`
-(where $s = 1/(1-t^2)$) is too tight. When `box_size` constrains $|s| \\leq B$
-but $s \\in [1, 1/(1-B^2)] \\gg B$, the SDP returns artificially tight bounds
-because the feasible set is over-restricted. **Fix:** exclude `s` from
-`original_gens` (so it's not boxed) and add explicit bounds
-`AddConstraint(s >= 1.0)`, `AddConstraint(s <= s_max)` with
-$s_{\\max} = 1/(1-t_{\\max}^2)$. With correct bounds, d=2 and d=3 become
-numerically infeasible (primal/dual gap explosion → $10^{10}$) —
-the rational coupling $s(1-t^2)=1$ creates ill-conditioned moment
-matrices. **d=1 is already near-exact; higher orders are unnecessary.**
-
-### Tan via Sin/Cos encoding (NEW — verified 2026-07-18) ✅
-
-The tan ADE $d_x(y)=1+y^2$ is too weak at d≤2 without an invariant.
-Instead, encode $\\tan(x) = \\sin(x)/\\cos(x) = f/g$ with the compact
-circle invariant $f^2+g^2=1$ and use the polynomial objective
-$(f-xg)^2 \\approx (\\tan(x)-x)^2$. This achieves **near-exact bounds
-at d=1** (gap ~5×10⁻⁹). See `references/ade_sdp_tan_sincos.md`.
-
-### P7 Holonomic encoding (NEW — verified 2026-07-18) ✅
-
-The user-provided holonomic encoding uses $(z, u, v, w, s, r)$ with
-invariants $u^2+v^2=1$, $w^2-s^2=1$, $wr=1$, and $z=xu+yr$. This
-achieved **5.98% gap at d=1** (versus best-known 8.34% from exp4-MOM-B).
-See `references/ade_sdp_p7_holonomic.md`.
-
-### The Invariant Principle (confirmed 2026-07-18)
-
-The Lasserre hierarchy at d≤2 produces tight bounds **only when** a compact
-polynomial invariant couples the generators. Without one, ALL ADE encoding
-techniques (standard, dual, compactified, factorized) return the box bound.
-- ✅ ADE + compact invariant → tight (sin²+cos²=1, yu=1, rational param.)
-- ❌ ADE + non-compact invariant → loose (z²-y²=1 hyperbola)
-- ❌ ADE only (no invariant) → box bound (tan, Airy, log)
-
-**DEAD ENDS confirmed experimentally (2026-07-18):** See
-`references/ade_sdp_dead_ends_and_pitfalls.md` for attack vectors that
-were tested and FAILED:
-- Derivative-coupled exponential ADE (build_ade_relations adds zero info
-  beyond yz=1 — the derivative symbols are Groebner-eliminated)
-- P7 d=3 (6 gens times out at 300s; file descriptor limits under
-  Parallel=True)
-- Tight box bounds on lifted variables (causes SDP primal infeasibility
-  when combined with circle invariants)
-- Tan ADE compactification (M²-y²≥0 doesn't help at d≤2 — manifold-vs-curve
-  gap persists; SDP bound is just the box bound)
-- Sinh/cosh invariant (z²-y²=1 is non-compact; SDP extracts loose bounds
-  by exploring unbounded hyperbola within the box)
-- Log-polynomial hierarchy for P8 (framework requires max Σ a_i log(p_i(x))
-  with a_i>0 constants; P8 has variable coefficient x on log term)
-
-Also documents the benchmark-rerun-with-snapshot workflow and the
-research plan template used to discover these results.
-
 ### Research plan template
 
 When embarking on experimental research (not software implementation),
@@ -264,16 +150,16 @@ a one-paragraph description of the fix, a before/after comparison table,
 and a verdict. This preserves the original report's integrity while
 adding the verification evidence.
 
-Example: the `Eq(diff, 0)` fix had no effect on structural gaps (P7, P8,
-tan ADE) but needed documentation. Added a "Postscript: Eq Fix Numerical
-Rerun" section to `DSDP_Synthesis_Numerical_Experiments_2026-07-17.md`.
+Example: a symbolic-equality fix that changed no numerical result still needed
+documenting, so the verification was recorded as a short postscript to the
+existing report rather than as a rewrite.
 
 ### Hermes session reports
 
 After every completed task, write a markdown session summary to
 `/home/YOUR-USER/Code/Python/Reports/[project]_[YYYY-MM-DD_HHMMSS].md`.
 Centralized Reports folder, not per-project subdirectories. Use the
-project codename (e.g., "DSDP", "Irene", "MP") as the prefix.
+project codename as the prefix.
 
 ### `scipy.optimize.linprog`: variables are NON-NEGATIVE by default
 
@@ -380,4 +266,4 @@ as symbolic inequalities in SymPy (they produce `GreaterThan`/`LessThan`).
 ## Auto-Logging
 
 - On **success**: result is posted to SiYuan if `SIYUAN_URL` and `SIYUAN_TOKEN` are set.
-- On **failure**: error + code snippet are stored in SimpleRAG (for example `project-<slug>-failures`). The orchestrator queries this memory before re-running to avoid identical failed attempts.
+- On **failure**: the error and the code snippet are appended to the project's failure log. The orchestrator queries this memory before re-running to avoid identical failed attempts.

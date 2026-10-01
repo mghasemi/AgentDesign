@@ -4,7 +4,7 @@
 3. Install deps: `pip install -r requirements.txt`
 4. Verify imports in REPL:
 ```python
->>> from Irene.mean_certificates import MeanCertificate
+>>> from <package>.mean_certificates import MeanCertificate
 >>> symbols = __import__('sympy').symbols
 >>> X,Y,Z,W = symbols('X Y Z W')
 ```

@@ -32,7 +32,6 @@ The Research Orchestrator uses a stage-first routing matrix:
 | Service | Primary URL | Fallback URL |
 |---------|------------|--------------|
 | LightRAG | `http://YOUR-HOST:9621` | `http://YOUR-DDNS-HOST:9621` |
-| SimpleRAG | `http://YOUR-HOST:7000` / `http://127.0.0.1:7000` | `http://YOUR-DDNS-HOST:7000` |
 | SearXNG | `http://YOUR-HOST:5050` | — |
 | ZIMI | `http://YOUR-HOST:8899` | `http://YOUR-DDNS-HOST:8899` |
 | Vikunja | `http://YOUR-HOST:3456` | `http://YOUR-DDNS-HOST:3456` |

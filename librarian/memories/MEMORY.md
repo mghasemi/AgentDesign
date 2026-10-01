@@ -4,11 +4,9 @@ Reports: /home/YOUR-USER/Code/Python/Reports/[project]_[timestamp].md, centraliz
 §
 Wiki: /home/YOUR-USER/Code/wiki/ (not profile home/wiki/).
 §
-Style check: apply ghasemi-latex-style anti-pattern checklist manually (no verifier script exists).
+Style check: apply user-latex-style anti-pattern checklist manually (no verifier script exists).
 §
-Git: no repo at Code/Python root; repos at subproject level — Irene (YOUR-GITHUB/Irene.git), IreneRewrite (worktree, branch rewrite), positivstellensatz (YOUR-GITHUB/positivstellensatz.git, main).
 §
-Numerical experiments (MP/DSDP/MeanDeltaSONC) run in IreneRewrite (/home/YOUR-USER/Code/Python/IreneRewrite/, worktree of Irene, branch rewrite, own .venv); classic Irene reference-only. Procedures: irene-rewrite-dev skill.
 §
 OptimizationInNorm (#31): E1.4 Lp quantile relaxation gives UPPER bounds (γ_p*≥f*); L∞=pointwise nonneg. C1 dual CGIK ordering open (E3.3).
 §

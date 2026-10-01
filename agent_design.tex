@@ -118,10 +118,8 @@ profile is a full-stack researcher with a sandboxed toolchain environment; the l
 a capability-degraded derivative that shares every registration but disables the computational
 surface and adds ingestion skills of its own.
 
-Two structural findings drive the abstraction design: (i)~the librarian profile's MCP servers
-import scripts from the math profile's directory tree, so it cannot exist without the math
-profile; and (ii)~both profiles carry a stale reference to a development worktree that no longer
-exists (a merge left the registered path dangling). Section~\ref{sec:abstraction}
+One structural finding drives the abstraction design: the librarian profile's MCP servers import
+scripts from the math profile's directory tree, so it cannot exist without the math profile. Section~\ref{sec:abstraction}
 proposes a capability/manifest model --- persona templates, path interpolation, a shared adapter,
 a service registry, and per-project binding files --- that removes every identified coupling in
 five concrete steps.
@@ -336,20 +334,19 @@ logs) plus the three design-relevant directories listed above.
 
 \subsection*{Skill tree layout}
 
-Both profiles carry the same 24-directory layout except for the single extra top-level skill in
-math; activation, not layout, is what differs.
+Both profiles carry the same directory layout --- the same populated categories, the same reserved
+shells, the same four top-level skills; activation, not layout, is what differs.
 
 \begin{lstlisting}[label=lst:skilltree]
-profiles/<profile>/skills/          # 24 top-level dirs (math) / 23 (librarian)
+profiles/<profile>/skills/          # 22 top-level dirs, identical in both
   research/  productivity/  mlops/            # 9 populated categories; each holds
   software-development/  github/  devops/     #   <skill>/SKILL.md with optional
   web/  autonomous-ai-agents/  social-media/  #   scripts/ and references/
   apple/  creative/  data-science/  email/    # 9 empty category shells (reserved,
   environment/  media/  note-taking/          #   no SKILL.md; used by the curator
   mathematical-research/  smart-home/         #   as retirement targets)
-  differential-sdp/  ghasemi-latex-style/     # 6 top-level skills in math,
-  hermes-plugin-management/  semantic-scholar/#   5 in librarian
-  workspace-doc-hierarchy/  irene-rewrite-dev/  [math only]
+  user-latex-style/  hermes-plugin-management/  # 4 top-level skills, present in
+  semantic-scholar/  workspace-doc-hierarchy/   #   both profiles
   .archive/                    # retired skills kept as curator tombstones
   .curator_ledger.jsonl  .curator_state/  .curator_suppressed/
   .bundled_manifest  .usage.json  .hub/  .locks/
@@ -403,8 +400,7 @@ Skills are the unit of reusability. Each \mono{SKILL.md} carries a trigger descr
 frontmatter, an imperative body, optional scripts, and --- where needed --- a credential file
 (\mono{.emv}) co-located with the skill that consumes it. The catalog is shared
 between the two profiles: the same populated categories, the same empty category shells, and the
-same top-level skills, with a single exception --- \mono{irene-rewrite-dev} is an active top-level
-skill in math and a curator tombstone in the librarian. Only activation differs. Table~\ref{tab:skillcats}
+same top-level skills. Only activation differs. Table~\ref{tab:skillcats}
 summarizes the catalog by design role; the per-entry inventory extracted from a live installation is
 in \mono{references/skill\_inventory.md}.
 
@@ -422,8 +418,7 @@ productivity & Knowledge management: task ledger, notes, bibliography, manuscrip
 mlops & Local inference operations and pipeline tooling & reduced in librarian \\
 software-development & Hermes self-extensibility, planning, subagent orchestration, desktop inspection & full in math; partly disabled in librarian \\
 github, devops, agents, web & Repository operations, SDLC review, delegation, blocked-page recovery & mixed; review and delegation off in librarian \\
-social-media & Community reading & inverted gate: disabled for math, enabled for librarian \\
-top-level skills & Cross-cutting capabilities: differential-algebraic SDP, manuscript style, plugin management, citation graph, document hierarchy & full in math; the librarian disables the development-oriented entry \\
+top-level skills & Cross-cutting capabilities: manuscript style, plugin management, citation graph, document hierarchy & full in math; the librarian disables the development-oriented entry \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -438,28 +433,21 @@ Three observations are design-relevant:
     (Section~\ref{sec:abstraction}).
     \item \textbf{The librarian's disabled list is a negative specification of that same
     contract}: every computational skill (\mono{sagemath-mcp}, \mono{sympy-mcp},
-    \mono{lean4}, \mono{lean4-goedel-agent}, \mono{scientific-coding}), the DSDP skills, and the
-    Irene/dev skills are turned off. Capability gating by negation works today but is brittle in a
+    \mono{lean4}, \mono{lean4-goedel-agent}, \mono{scientific-coding}) are turned off. Capability gating by negation works today but is brittle in a
     subtler way than it looks: entries resolve by \emph{leaf name} against the profile's skill tree,
     which includes the curator tombstone directory \mono{skills/.archive/}. Every disabled name
     therefore resolves to a real \mono{SKILL.md}; none dangles. But a sizeable minority of them
     resolve \emph{only} under \mono{.archive/} --- they are residue from skills the curator has
-    already retired (\mono{docx}, \mono{opencode}, \mono{test-driven-development}, and for the
-    librarian also \mono{irene-rewrite-dev}, which is an \emph{active} top-level skill in math while
-    pointing at a librarian tombstone). Because resolution is name-based, any of these stale entries
+    already retired (\mono{docx}, \mono{opencode}, \mono{test-driven-development}). Because resolution is name-based, any of these stale entries
     would silently disable a same-named skill if it were ever reinstalled. One inversion deserves note: \mono{reddit-reading} is
     disabled for math but enabled for librarian --- the only skill whose gate runs opposite to every
     other difference between the two profiles.
-    \item \textbf{One reference is stale}: \mono{math-research-workflow} names
-    \mono{simplerag-memory} in its frontmatter and body, several times as shell invocations of a
-    client script that does not exist; no such skill exists in either profile tree or in the bundled
-    pool.
 \end{enumerate}
 
 %=====================================================================
 \section{MCP Bridge}\label{sec:mcp}
 
-Thirteen MCP servers are registered per profile, all launched from one shared interpreter
+Twelve MCP servers are registered per profile, all launched from one shared interpreter
 environment. They fall into three families:
 
 \begin{table}[H]
@@ -483,7 +471,6 @@ zimi & CLI adapter & \mono{skills/research/zimi/} & 4 \\
 zotero & CLI adapter & \mono{skills/productivity/zotero/} & 7 \\
 scientific-coding & CLI adapter & \mono{skills/research/scientific-coding/} (CPU and memory limits via env) & 4 \\
 latex-manuscript & CLI adapter & \mono{skills/productivity/latex-manuscript/} & 5 \\
-hermes-irene & direct script & inside a development worktree since merged and removed: registered, but dangling & --- \\
 calibre & native, librarian only & math: environment block without a command; librarian: a server with its own virtual environment & 12 \\
 \bottomrule
 \end{tabularx}
@@ -504,11 +491,6 @@ Two cross-profile facts follow directly from the table:
     script, and the adapter itself. The librarian has no \mono{scripts/} directory of its own.
     Deleting or moving the math profile would silently break every tool-bridged capability of the
     librarian.
-    \item Both profiles register \mono{hermes-irene} against a script inside a development worktree
-    that was merged into the main \mono{Irene} package and then removed; the file was never
-    committed, so the registration dangles. It is dormant in math and left enabled in the librarian,
-    where it fails at startup. The correct target is the merged package, where no such script has yet
-    been created.
 \end{itemize}
 
 %=====================================================================
@@ -614,7 +596,7 @@ Reflexion gate.}\label{tab:workflow}
 2. Literature synthesis & Local-first retrieval cascade: LightRAG $\to$ academic-research-hub $\to$ Semantic Scholar $\to$ SearXNG $\to$ ZIMI; every citation passes the \emph{Citation Verification Gate} (arXiv API / Crossref / S2 before any bibliographic fact is recorded) & lightrag, searxng, zimi, s2 skill\\
 3. Computation & Deterministic-first: SymPy $\to$ SageMath $\to$ Wolfram\textbar Alpha $\to$ sandboxed scientific-coding; Error-Feedback Loop with a 3-retry budget, exact prior error carried into each retry & sympy-mcp, sagemath-mcp, wolfram-alpha, scientific-coding\\
 4. Formal verification & Three-stage Lean pipeline: formalize $\to$ compile clean (\mono{lean4\_check} against an explicit Mathlib project) $\to$ statement-fidelity diff vs.\ the informal claim; only then is a theorem ledger-marked ``proven \& Lean-verified'' & lean4, lean4-goedel-agent\\
-5. Manuscript production & Drafter $\to$ Enhancer $\to$ Reviewer pass over LaTeX with the ghasemi-latex-style anti-pattern checklist and notation audit & latex-manuscript MCP, ghasemi-latex-style\\
+5. Manuscript production & Drafter $\to$ Enhancer $\to$ Reviewer pass over LaTeX with the user-latex-style anti-pattern checklist and notation audit & latex-manuscript MCP, user-latex-style\\
 6. Reflection \& close-out & Claims ledger updated; failures promoted to skill pitfalls or project reports; project README + AGENTS.md status synced in the same commit & ---\\
 \bottomrule
 \end{tabularx}
@@ -623,11 +605,11 @@ Reflexion gate.}\label{tab:workflow}
 Supporting state: a per-project failure scratchpad under
 \mono{\textasciitilde/.hermes/}\allowbreak\mono{profiles/math/}\allowbreak\mono{scratchpad/},
 per-project verified-source registries for citation dedup, and the cron jobs (weekly arXiv scan in
-the five-topic overlap set; bi-weekly wiki maintenance) that feed Stage~2 continuously. The Irene
-package (\mono{\textasciitilde/Code/Python/Irene/}) is the shared numerical backend for polynomial
-optimization experiments across projects (moment/SOS hierarchies, SONC relaxations), invoked from
-Irene's venv rather than through MCP --- the intended \mono{hermes-irene} bridge being the broken
-one documented in Section~\ref{sec:mcp}.
+the five-topic overlap set; bi-weekly wiki maintenance) that feed Stage~2 continuously. The shared
+numerical backend for polynomial-optimization experiments --- moment and SOS hierarchies, SONC
+relaxations --- is invoked from its own environment by shell rather than through the bridge; it is a
+project dependency, not part of the profile design, and is therefore outside the scope of this
+document.
 
 %=====================================================================
 \section{Identified Couplings and Defects}\label{sec:defects}
@@ -644,13 +626,12 @@ Ranked by severity, with the evidence for each entry given in the consequence co
 \textbf{Coupling} & \textbf{Consequence} & \textbf{Severity} \\
 \midrule
 Cross-profile script import (librarian $\to$ math) & Every adapter tool script, every native server script and the adapter itself resolve under the math profile; the librarian has no scripts directory of its own & critical \\
-Stale development-worktree path & Both profiles register a tool against a script in a worktree that was merged and removed; dormant in math, failing at startup in the librarian & high \\
+math, failing at startup in the librarian & high \\
 Absolute skill paths in MCP configuration & Every registration hardcodes the full home path; no interpolation mechanism exists & high \\
 Hardcoded service endpoints & Environment files embed host and port directly; no name-based resolution & medium \\
 Project-pinned working directories & Working directory, repository scan roots and execution mode reference specific project trees; the kanban orchestrator is fixed to one profile in both configurations & medium \\
 Toolchain baked into the profile home & The local computation toolchain ships as profile state rather than as a project binding & medium \\
 Stale disabled entries (curator tombstones) & Disabled names that resolve only under the curator archive would silently disable a same-named skill if it were reinstalled & low \\
-Orphaned skill reference & A skill named by the research workflow exists in neither catalog & low \\
 Asymmetric service registration & The same service name means different things in the two profiles & low \\
 \bottomrule
 \end{tabularx}
@@ -753,12 +734,10 @@ property today's coupling list (Table~\ref{tab:couplings}) shows to be absent.
 
 \subsection*{F. Remediation prerequisites}
 
-Before any of A--E is built, four live defects should be fixed in place (each a one-line or
-one-file change): repoint \mono{hermes-irene} at the merged Irene tree (or disable it for the
-librarian), prune the tombstone-only names from the disabled lists, remove \mono{simplerag-memory}
-from \mono{math-research-workflow}'s related-skill list, and give math a real calibre server command or
-delete its env-only block. These are recorded here as open work items; none is applied by this
-documentation project.
+Before any of A--E is built, two live defects should be fixed in place (each a one-line or one-file
+change): prune the tombstone-only names from the disabled lists, and give math a real calibre server
+command or delete its env-only block. These are recorded here as open work items; none is applied by
+this documentation project.
 
 \subsection*{Instantiation model, end state}
 
@@ -777,7 +756,7 @@ projects.
   \node[t] (tmpl) {Persona templates\\[-1pt]\tiny capability set + persona prompt};
   \node[p, below left=0.9cm and 0.6cm of tmpl] (mathp) {\mono{mathematician}\\[-1pt]\tiny computation $\cdot$ formal-proof $\cdot$ manuscript};
   \node[p, below right=0.9cm and 0.6cm of tmpl] (libp) {\mono{librarian}\\[-1pt]\tiny ingestion $\cdot$ knowledge-mgmt};
-  \node[pr, below left=2.2cm and 0.3cm of mathp] (projA) {Project A\\[-1pt]\tiny Mean Polynomial / DSDP};
+  \node[pr, below left=2.2cm and 0.3cm of mathp] (projA) {Project A\\[-1pt]\tiny a polynomial-optimization project};
   \node[pr, below right=2.2cm and 0.2cm of libp] (projB) {Any future math project\\[-1pt]\tiny declares .agent.yaml only};
   \draw (tmpl) -- (mathp); \draw (tmpl) -- (libp);
   \draw (mathp) -- node[right, font=\tiny]{binds} (projA);
@@ -1014,7 +993,7 @@ for all sixteen components.
 Section~\ref{sec:mcp} described the bridge between the profiles and their tools; this appendix
 enumerates what crosses it. Every capability the profiles reach without a shell goes through a Model
 Context Protocol server, and every server is registered in the profile's configuration under a name
-that becomes the first half of the tool name the model sees. Thirteen servers are registered in each
+that becomes the first half of the tool name the model sees. Twelve servers are registered in each
 profile, exposing seventy-five tools in total, and they divide into two families by construction
 rather than by purpose.
 
@@ -1031,7 +1010,7 @@ Three conventions govern the whole layer, and each of them is visible in the tab
     tool list and the call handler itself. A \emph{CLI-adapter} server is a thin wrapper around an
     ordinary command-line tool --- the adapter introspects the tool's argument parser at startup,
     publishes each subcommand as a tool with a JSON schema for its arguments, and rebuilds a command
-    line from the call it receives. Nine of the thirteen servers are adapters, and the pattern is why
+    line from the call it receives. Nine of the twelve servers are adapters, and the pattern is why
     adding a new service-backed capability costs a script and a configuration entry rather than
     protocol code.
     \item \textbf{Credentials.} Every server receives its endpoint and secret through environment
@@ -1075,7 +1054,6 @@ siyuan & CLI adapter & 7 & SiYuan container & Block-level notes: create, read, s
 zotero & CLI adapter & 7 & Zotero API & Bibliography: search the library, add by DOI, export BibTeX and synchronise a bibliography file \\
 latex-manuscript & CLI adapter & 5 & Local TeX Live & Manuscript production: compile, AST-aware edit checks, glossary, notation audit and diff-patch \\
 calibre & native & 12 & calibre-server on the host & Library management and format conversion; registered in the librarian, environment-only in math \\
-hermes-irene & direct script & --- & A deleted development worktree & Registered in both profiles but not resolvable: dormant in math, failing at start-up in the librarian \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -1154,13 +1132,6 @@ native server in the librarian and as an environment-only block in math --- the 
 different meanings in the two profiles, noted in Section~\ref{sec:defects}. Its role is ingestion:
 converting an acquired book or paper into a form the knowledge base can absorb.
 
-\item[\mono{hermes-irene}] Not a working server. Both profiles register it against a script inside a
-development worktree that was merged into the main package and then deleted, so the registration
-dangles: dormant in math, enabled and failing at start-up in the librarian. It is listed here because
-the bridge's inventory is only complete if its one broken member is in it, and because the correct
-replacement --- a bridge to the numerical backend the profiles invoke by shell today --- remains the
-open item recorded in Section~\ref{sec:defects}.
-
 \end{description}
 
 \begin{table}[htbp]
@@ -1183,7 +1154,7 @@ open item recorded in Section~\ref{sec:defects}.
 
 \subsection{Notes on the bridge}
 
-\textbf{The bridge is not capability-gated.} Both profiles register the same thirteen servers, and all
+\textbf{The bridge is not capability-gated.} Both profiles register the same twelve servers, and all
 of them are enabled in both. What differs between the profiles is which \emph{skills} are active, not
 which tools exist: the librarian's skill list disables the computational and proof surface, yet the
 librarian's configuration still carries a live handle to it. Capability gating at the skill layer and
@@ -1239,7 +1210,7 @@ reproduces that relationship: for each stage, the skills it invokes and what the
 2. Literature synthesis (ingestion) & llm-wiki, wiki-pipeline, wiki-maintenance & The intake side: documents are queued, ingested into the graph and the wiki, and the wiki is periodically linted and repaired \\
 3. Computation & sympy-mcp, sagemath-mcp, exact-symbolic-gate-scripts, wolfram-alpha, scientific-coding & Exact symbolic work first, deterministic gate scripts for anything that must be re-runnable, an independent implementation as cross-check, and a resource-capped sandbox for numerics \\
 4. Formal verification & lean4, lean4-goedel-agent & The verification pipeline: formalise an informal statement, then check it against a pinned library project and diff the result against the informal claim \\
-5. Manuscript production & latex-manuscript, ghasemi-latex-style, math-article-revision, project-bib, research-paper-writing & Compilation and structural checks, the house style, the revision workflow, bibliography management, and the writing conventions of the field \\
+5. Manuscript production & latex-manuscript, user-latex-style, math-article-revision, project-bib, research-paper-writing & Compilation and structural checks, the house style, the revision workflow, bibliography management, and the writing conventions of the field \\
 6. Reflection and close-out & workspace-doc-hierarchy, hermes-agent-skill-authoring, agent-tool-diagnostics & Status is synchronised across the project's documentation, a recurring failure becomes a skill rule rather than a session note, and a tool that looks available but is not is diagnosed rather than worked around \\
 \bottomrule
 \end{tabularx}
@@ -1314,7 +1285,6 @@ calibre-library-ingestion & Ingesting an existing library into the knowledge bas
 djvu-to-pdf & Format conversion for scanned books & librarian only \\
 pocketbase & API operations on the intake queue that feeds the wiki pipeline & both profiles \\
 lmstudio-configuration & Troubleshooting the local inference server: duplicate models, paths, service state & both profiles \\
-dsdp-extension-workflow & Extending the numerical backend's relaxation classes without breaking existing bounds & math only \\
 llama-cpp & Local inference through a second runtime, kept as a fallback & disabled in both \\
 \bottomrule
 \end{tabularx}
@@ -1336,6 +1306,8 @@ subagent-driven-development & Executing a plan through delegated workers with a 
 dynamic-workflow & Orchestrating large fan-out work as a plan expressed in code & both profiles \\
 inspecting-hermes-desktop-dom & Reading the live desktop interface through the debugging protocol & math only \\
 sdlc-review & Reviewing handoffs and routing verified outcomes & math only \\
+docker-stack-reconstruction & Rebuilding and validating a containerised service stack from its live state & math only \\
+hermes-profile-packaging & Producing a sanitised, shareable copy of a profile: exclusion and scrub rules & math only \\
 github & Repository operations through the command line: pull requests, issues, reviews & math only \\
 github-repo-management & Cloning, creating and forking repositories; remotes and releases & math only \\
 merge-reconciler & Reconciling divergent branches after a merge conflict & disabled in both \\
@@ -1354,29 +1326,27 @@ reddit-reading & Community reading; the only skill whose gate is inverted betwee
 \toprule
 \textbf{Skill} & \textbf{Role in the workflow} & \textbf{Activation} \\
 \midrule
-ghasemi-latex-style & The house LaTeX style: document class, fonts, notation and the anti-pattern checklist every manuscript passes & both profiles \\
+user-latex-style & The house LaTeX style: document class, fonts, notation and the anti-pattern checklist every manuscript passes & both profiles \\
 semantic-scholar & The citation-graph API: search, references, recommendations, batch enrichment & both profiles \\
 hermes-plugin-management & Installing, enabling and debugging plugins & both profiles \\
-differential-sdp & Orchestrating the differential-algebraic SDP research programme & math only \\
 workspace-doc-hierarchy & Maintaining the layered documentation chain: project guidance at each level & math only \\
-irene-rewrite-dev & Development workflow for the shared numerical backend package & math only \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \subsection{Notes on the catalog}
 
-\textbf{The two catalogs are the same catalog.} Each profile carries fifty-seven skill entries, and
-their union is fifty-nine: only four entries are exclusive to one profile --- the development workflow
-for the numerical backend and the exact-gate-scripts skill in math, and the two ingestion skills in
-the librarian. Everything else is present in both trees, and the profiles differ only in what is
+\textbf{The two catalogs are the same catalog.} Each profile carries fifty-five and fifty-four skill
+entries respectively, and their union is fifty-seven: only five entries are exclusive to one profile ---
+the stack-reconstruction, exact-gate-scripts and profile-packaging skills in math, and the two
+ingestion skills in the librarian. Everything else is present in both trees, and the profiles differ only in what is
 switched on.
 
 \textbf{Activation is a negative specification.} Math disables twelve names and the librarian
-twenty-eight, and the librarian's longer list is precisely the computational and proof surface the
+twenty-five, and the librarian's longer list is precisely the computational and proof surface the
 math profile exists to provide. Resolving those names against the live trees gives three outcomes:
-five of math's and eighteen of the librarian's disabled names match a skill in the profile tree; six
-and nine respectively match only an entry in the curator's archive, meaning they are residue from
+five of math's and sixteen of the librarian's disabled names match a skill in the profile tree; six
+and eight respectively match only an entry in the curator's archive, meaning they are residue from
 skills already retired; and one name in each list --- a local-inference skill that was never installed
 --- matches nothing at all. The distinction matters because resolution is by leaf name: a disabled
 entry that matches only an archived skill, or nothing, will silently disable a same-named skill the
@@ -1386,11 +1356,6 @@ day one is installed.
 librarian --- the only entry whose activation runs opposite to every other difference between the two
 profiles, and the clearest evidence that the disabled lists were assembled by hand rather than
 derived from a role.
-
-\textbf{One reference is orphaned.} The designated workflow names a memory skill that exists in
-neither catalog, and part of that reference is a shell invocation of a client script that does not
-exist either. It is the same class of defect as the dangling server registration in
-Appendix~\ref{app:mcp}: a name recorded in one place and never created in another.
 
 %=====================================================================
 \section*{Sources and Verification}\label{sec:sources}
@@ -1409,9 +1374,8 @@ Section~\ref{sec:packs}.
     \item \textbf{Packs} --- the pack builder in \mono{references/} produces the \mono{math/} and
     \mono{librarian/} folders from the same sources
     (\mono{build\_}\allowbreak\mono{profile\_}\allowbreak\mono{packs.py}).
-    \item \textbf{Structural claims} --- the cross-profile path coupling, the dangling
-    registration and the curator tombstones were each confirmed by direct filesystem and
-    configuration inspection, not inferred.
+    \item \textbf{Structural claims} --- the cross-profile path coupling and the curator tombstones were each confirmed by direct
+    filesystem and configuration inspection, not inferred.
 \end{itemize}
 
 \textbf{Redaction note}: no credential, endpoint, hostname or personal identifier appears anywhere

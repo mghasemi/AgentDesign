@@ -50,6 +50,4 @@ Week-by-week plan with deliverables.
 
 ## Reference
 
-See `scientific-coding/references/ade_sdp_attack_vectors.md` for the
-canonical taxonomy. See `ade_sdp_dead_ends_and_pitfalls.md` for what's
 been eliminated.

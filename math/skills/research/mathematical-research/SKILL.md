@@ -15,7 +15,6 @@ metadata:
       - scientific-coding
       - academic-research-hub
       - lightrag
-      - simplerag-memory
       - zimi
       - zotero
       - calibre
@@ -93,7 +92,6 @@ Use these formatting rules for survey reports:
 
 ### Worked examples
 
-See `references/project-state-survey.md` for concrete examples from the Irene (MeansResearch) and DiffSDP projects.
 
 ---
 
@@ -111,14 +109,14 @@ At the end of every stage, run these steps in order:
    - **PASS** (all 5 checks clear) → save certificate, proceed to next stage with human approval.
    - **WARN** (advisory issues, none blocking) → save certificate with warnings, proceed.
    - **FAIL** (blocking issue) → save failure report, route back to responsible agent with exact remediation. Do NOT advance.
-4. **Emit stage checkpoint** to SimpleRAG group `stage-checkpoints`.
+4. **Emit a stage checkpoint** to the project log.
 5. **Create Vikunja gate task** `"Stage N complete — awaiting human sign-off"` with `priority: high`.
 6. **Halt for human approval** before beginning the next stage.
 
 ### Reflexion Checks (run in order)
 
 1. **Logical Consistency** — Every mathematical claim checked against Lean4 proof state or Wolfram|Alpha. Claim X but prover says ¬X → FAIL.
-2. **Notation Consistency** — All symbols checked against the master glossary in SimpleRAG. Symbol used differently from its definition → FAIL.
+2. **Notation Consistency** — All symbols checked against the master notation glossary. Symbol used differently from its definition → FAIL.
 3. **Originality** — Key claims checked against LightRAG. Section is >80% verbatim overlap with a single source without attribution → FAIL.
 4. **Citation Completeness** — Every `\cite{key}` verified in Zotero. Missing key → FAIL.
 5. **Assumption/Definition Impact** — If any tracked assumption changed during the project, verify all downstream artifacts were re-evaluated. Stale artifact → FAIL.
@@ -180,7 +178,6 @@ If any assumption or definition changes after Stage 1:
 ### Cross-Stage Infrastructure
 - `vikunja`: projects/tasks for planning, gate tasks, and human checkpoints
 - `siyuan`: structured notes, reflexion certificates, experiment logs
-- `simplerag-memory`: stage checkpoints, shared insights, failure logs, notation glossary
 
 ## Manuscript Persona Pipeline (Stage 5 Detail)
 
@@ -200,7 +197,6 @@ Segment-level critique. Check citation completeness, theorem-proof correspondenc
 Before beginning research:
 - [ ] Vikunja accessible (`vikunja_tool.py projects list`)
 - [ ] SiYuan accessible (`siyuan_tool.py search "test"`)
-- [ ] SimpleRAG healthy (health endpoint)
 - [ ] LightRAG healthy (health endpoint)
 - [ ] Zotero API key configured
 - [ ] Wolfram|Alpha AppID configured
@@ -211,11 +207,8 @@ Before beginning research:
 ## References
 
 - [MathAgent Agent Definitions](references/mathagent-agents.md) — Full agent roster, routing policy, service endpoints, STITCH framework.
-- [Project State Survey Worked Examples](references/project-state-survey.md) — Concrete survey workflow using Irene (MeansResearch) and DiffSDP as worked illustrations.
 - [GPkit Gotchas](references/gpkit-gotchas.md) — GPkit pitfalls: variable bounds, constant terms, constraint format, SignomialsEnabled.
-- [Differential-Algebraic Optimization](references/differential-algebraic-optimization.md) — Key theoretical insights from Curto et al. for SDP exactness conditions and numerical verification
 - [Theorem Verification Workflow](references/theorem-verification-workflow.md) — Cross-checking formulas against paper examples, catching incorrect inequality chains, proof simplification, definition relaxation.
-- [Irene Module Patterns](references/irene-module-patterns.md) — Authoring new Irene modules: OptimizationProblem setup, result containers, wrapping SDP/SONC, test conventions.
 
 ## Related Skills
 

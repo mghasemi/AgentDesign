@@ -22,6 +22,7 @@ Usage:  python3 build_profile_packs.py [--dest DIR] [--source HERMES_DIR]
 from __future__ import annotations
 
 import argparse
+import glob
 import os
 import re
 import shutil
@@ -68,6 +69,208 @@ EXCL_SUFFIX = (".pyc", ".pyo", ".lock", ".db", ".db-shm", ".db-wal", ".jsonl", "
 # ships one machine's usage counters, bundle manifest or curator ledger.
 EXCL_FILES = {".usage.json", ".bundled_manifest", ".curator_state",
               ".curator_suppressed", ".curator_ledger.jsonl"}
+
+# ------------------------------------------------------------ generalization
+# A pack is a reusable template, so material tied to one user's research
+# projects is dropped and the house LaTeX style is renamed to a neutral name.
+# Paths are relative to the pack root.
+EXCL_SKILL_PATHS = {
+    "skills/differential-sdp",
+    "skills/irene-rewrite-dev",
+    "skills/mlops/dsdp-extension-workflow",
+}
+EXCL_REF_PATHS = {
+    "skills/research/mathematical-research/references/irene-module-patterns.md",
+    "skills/research/mathematical-research/references/project-state-survey.md",
+    "skills/research/mathematical-research/references/differential-algebraic-optimization.md",
+    "skills/research/literature-project-mapping/references/external-method-fit-assessment.md",
+    "skills/research/wiki-maintenance/references/paper-ingestion-example.md",
+    "skills/research/math-article-revision/references/sdp-to-formal-proof.md",
+    "skills/research/scientific-coding/references/irene_benchmark_comparison.md",
+}
+EXCL_REF_GLOBS = ("skills/research/scientific-coding/references/ade_sdp_*.md",)
+RENAME_SKILLS = {"skills/ghasemi-latex-style": "skills/user-latex-style"}
+RENAMED_TERM = ("ghasemi-latex-style", "user-latex-style")
+EXCL_MCP_SERVERS = {"hermes-irene"}
+EXCL_SKILL_NAMES = {"differential-sdp", "irene-rewrite-dev", "dsdp-extension-workflow"}
+
+# Sentence-level generalization applied to every text file in the pack. Each rule is
+# (pattern, replacement); the patterns match material in the source profile, so a
+# rebuild reproduces the shipped packs rather than reintroducing project prose.
+GENERICIZE_RULES = [
+    # --- the removed memory service ---------------------------------------
+    (r"^export SIMPLERAG_[A-Z_]+ *=.*\n", ""),
+    (r"^SIMPLERAG_[A-Z_]+ *=.*\n", ""),
+    (r"simplerag-memory, ", ""),
+    (r"^\s*- simplerag-memory$\n", ""),
+    (r"^- `simplerag-memory`.*\n", ""),
+    (r"^\| SimpleRAG (?:store|query) \|.*\n", ""),
+    (r"^\| SimpleRAG\s*\|.*\n", ""),
+    (r"^- \[ \] SimpleRAG healthy \(health endpoint\)\n", ""),
+    (r"(?s)^4\. Log problem statement and decomposition to SimpleRAG:.*?(?=^6\. \*\*Hypothesis tree\*\*)", ""),
+    (r"^6\. \*\*Hypothesis tree\*\*", "4. **Hypothesis tree**"),
+    (r"(?s)^11\. Save report to SimpleRAG:.*?(?=^\*\*Gate\*\*)", ""),
+    (r"(?s)^7\. Log all results to SimpleRAG:.*?(?=^\*\*Gate\*\*)", ""),
+    (r"(?s)^2\. Store reflexion certificate to SimpleRAG:.*?(?=^4\. Close Vikunja project tasks)", ""),
+    (r"^4\. Close Vikunja project tasks", "2. Close Vikunja project tasks"),
+    (r"Query SimpleRAG `math-notation-glossary` group\.", "Query the shared notation glossary."),
+    (r"\*\*Emit stage checkpoint\*\* to SimpleRAG group `stage-checkpoints`\.", "**Emit a stage checkpoint** to the project log."),
+    (r"checked against the master glossary in SimpleRAG\.", "checked against the master notation glossary."),
+    (r"master glossary stored in SimpleRAG\.", "master notation glossary."),
+    (r"`LATEX_GLOSSARY_GROUP`: SimpleRAG group holding the master notation glossary\.",
+     "`LATEX_GLOSSARY_GROUP`: group name of the master notation glossary."),
+    (r"`SIMPLERAG_URL`: SimpleRAG endpoint for glossary retrieval\.",
+     "`GLOSSARY_URL`: endpoint serving the notation glossary."),
+    (r',?"SIMPLERAG_URL":\{"description":"[^"]*","default":"[^"]*","required":(?:true|false)\},?', ""),
+    (r"^SIMPLERAG_URL = os\.environ\.get\(\"SIMPLERAG_URL\", \"http://YOUR-HOST:7000\"\)\n", ""),
+    (r"\"description\":\"SimpleRAG group name", "\"description\":\"glossary group name"),
+    (r"(records?|recorded|are recorded) failure context in SimpleRAG project groups",
+     r"\1 failure context in the per-problem failure scratchpad"),
+    (r"failures are recorded to SimpleRAG project groups", "failures are recorded to the per-problem failure scratchpad"),
+    (r"error \+ code snippet are stored in SimpleRAG \(for example `project-<slug>-failures`\)\.",
+     "the error and the code snippet are appended to the project's failure log."),
+    (r"use siyuan or simplerag-memory\.", "use siyuan."),
+    (r"related_skills: \[simplerag, ", "related_skills: ["),
+    (r"academic-research-hub, simplerag-memory, calibre", "academic-research-hub, calibre"),
+    (r"The `simplerag_client\.sh` helper additionally checks `SIMPLERAG_LOCAL_URL` \(loopback\)\nbefore failing\. The", "The"),
+    (r'(?s)        ┌─────────┬─.*?web API\)',
+     '''        ┌─────────┬─────────┬─────────┬─────────┬─────────┬─────────┬─────────┐\n        │         │         │         │         │         │         │         │\n     :9621     :8899     :5050     :3456     :6806     :8080     :????\n    LightRAG   ZIMI    SearXNG   Vikunja   SiYuan   Calibre   Zotero\n    (graph    (offline  (meta-    (task     (notes)  (ebooks)  (bib,\n     RAG)      wiki)    search)   mgmt)                        web API)'''),
+    # --- project names in prose -------------------------------------------
+    (r"for concrete examples from the Irene \(MeansResearch\) and DiffSDP projects\.", "for concrete worked examples."),
+    (r" — Concrete survey workflow using Irene \(MeansResearch\) and.*$", " — A concrete survey workflow, end to end."),
+    (r"^- \[Irene Module Patterns\].*\n", ""),
+    (r"served symmetric-algebras → MomentSheaf and jet/prolongation → DSDP\.",
+     "served symmetric-algebras → one project and jet/prolongation → another."),
+    (r"project \(MomentSheaf, Mean Polynomial, DSDP, …\)", "project (the workspace's active projects)"),
+    (r"worked Irene ↔ Sum2d/BKM", "worked backend ↔ method"),
+    (r"\(what Irene is and is not,", "(what the backend is and is not,"),
+    (r"belongs in Irene or in a sibling project\.", "belongs in the backend package or in a sibling project."),
+    (r"worked instance \(DSDP truncation theory, 4 repair passes in one session\)",
+     "worked instance (a truncation-theory manuscript, 4 repair passes in one session)"),
+    (r"lives in the `differential-sdp` skill's", "lives in the project's own notes:"),
+    (r"relies on SDP decomposition \(Irene\) as the sole evidence", "relies on an SDP decomposition as the sole evidence"),
+    (r"Workflow \(worked instance: DSDP", "Workflow (worked instance: a truncation-theory"),
+    (r"Nie--Schweighofer bounds in DSDP / polynomial-optimization manuscripts\.",
+     "Nie--Schweighofer bounds in polynomial-optimization manuscripts."),
+    (r"\(DSDP truncation-theory", "(truncation-theory"),
+    (r"connect to the user's active projects \(DSDP, Mean Polynomials, SOS hierarchies\) with s",
+     "connect to the active projects (each with its own name) with s"),
+    (r"worked example: Henrion et al\. arXiv:2305\.18768 PDF → wiki, with DSD.*$",
+     "worked example: a paper PDF → wiki, end to end."),
+    (r"implementation files under `Irene/`\) and `\.bib` bibliography files\.",
+     "implementation files) and `.bib` bibliography files."),
+    (r"`\.\./Irene/\.venv/bin/python script\.py`", "`../<package>/.venv/bin/python script.py`"),
+    (r"from Irene\.mean_certificates import MeanCertificate", "from <package>.mean_certificates import MeanCertificate"),
+    (r"\(e\.g\. `IreneRewrite/scripts/hermes_mcp_tool\.py` after merging into `Irene/`\)",
+     "(e.g. a tool script inside a development worktree that was later merged into the main package)"),
+    (r"Root AGENTS\.md\s+← workspace-level overview, active projects list, Irene API reference",
+     "Root AGENTS.md                          ← workspace-level overview, active projects list"),
+    (r"├── \./positivstellensatz/AGENTS\.md\s+← subproject context \(MP, DSDP, etc\.\)",
+     "├── ./<project>/AGENTS.md                ← subproject context"),
+    (r"├── \./Irene/doc/\*\.rst\s+← package API documentation",
+     "├── ./<package>/doc/*.rst                ← package API documentation"),
+    (r"(?s)^### Irene SDP benchmark comparison.*?(?=^### Research plan template)", ""),
+    (r"Example: the `Eq\(diff, 0\)` fix had no effect on structural gaps \(P7, P8,\ntan ADE\) but needed documentation\. Added a \"Postscript: Eq Fix Numerical\nRerun\" section to `DSDP_Synthesis_Numerical_Experiments_2026-07-17\.md`\.",
+     "Example: a symbolic-equality fix that changed no numerical result still needed\n"
+     "documenting, so the verification was recorded as a short postscript to the\n"
+     "existing report rather than as a rewrite."),
+    (r"project codename \(e\.g\., \"DSDP\", \"Irene\", \"MP\"\) as the prefix\.", "project codename as the prefix."),
+    (r"for YOUR-USER Ghasemi", "for YOUR-USER User"),
+    (r"^# Ghasemi LaTeX Style Guide", "# User LaTeX Style Guide"),
+    # --- links to the removed reference files -----------------------------
+    (r"^.*(?:project-state-survey|differential-algebraic-optimization|external-method-fit-assessment"
+     r"|paper-ingestion-example|sdp-to-formal-proof|irene-module-patterns|irene_benchmark_comparison"
+     r"|ade_sdp_)[\w.-]*\.md.*\n", ""),
+]
+# Rules scoped to one file: runtime state that names the source projects.
+FILE_RULES = {
+    "memories/MEMORY.md": [(r"^.*\b(?:Irene|IreneRewrite|DSDP)\b.*\n", "")],
+    "cron/jobs.json": [(r"the projects listed in 'projects\.csv'",
+                        "the projects listed in the workspace project file")],
+}
+# Files whose design version is maintained here rather than derived by regex
+# (the tool scripts whose failure log was re-pointed at the local scratchpad).
+OVERRIDE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "overrides")
+
+GENERICIZE_EXTS = {".md", ".py", ".sh", ".json", ".yaml", ".yml", ".txt", ".rst", ".tex"}
+
+
+def generalize(dst: str) -> int:
+    """Drop project-specific material from a freshly copied pack. Returns the count dropped."""
+    dropped = 0
+    for rel in sorted(EXCL_SKILL_PATHS | EXCL_REF_PATHS):
+        p = os.path.join(dst, rel)
+        if os.path.isdir(p):
+            shutil.rmtree(p)
+            dropped += 1
+        elif os.path.exists(p):
+            os.remove(p)
+            dropped += 1
+    for pattern in EXCL_REF_GLOBS:
+        for p in glob.glob(os.path.join(dst, pattern)):
+            os.remove(p)
+            dropped += 1
+    for old, new in RENAME_SKILLS.items():
+        so, sn = os.path.join(dst, old), os.path.join(dst, new)
+        if os.path.isdir(so):
+            os.rename(so, sn)
+    # the renamed style and the project prose are referenced from other files
+    old_term, new_term = RENAMED_TERM
+    rules = [(re.compile(pat, re.M), repl) for pat, repl in GENERICIZE_RULES]
+    for dirpath, _dirs, files in os.walk(dst):
+        for f in files:
+            if f == "config.yaml" or os.path.splitext(f)[1] not in GENERICIZE_EXTS:
+                continue
+            p = os.path.join(dirpath, f)
+            try:
+                text = open(p, encoding="utf-8").read()
+            except (UnicodeDecodeError, OSError):
+                continue
+            new = text.replace(old_term, new_term)
+            for rx, repl in rules:
+                new = rx.sub(repl, new)
+            if new != text:
+                open(p, "w", encoding="utf-8").write(new)
+    # file-scoped rules, then the canonical versions of the rewritten tool scripts
+    for suffix, scoped in FILE_RULES.items():
+        for dirpath, _dirs, files in os.walk(dst):
+            for f in files:
+                fp = os.path.join(dirpath, f)
+                if not fp.endswith(suffix):
+                    continue
+                text = open(fp, encoding="utf-8").read()
+                new = text
+                for pat, repl in scoped:
+                    new = re.sub(pat, repl, new, flags=re.M)
+                if new != text:
+                    open(fp, "w", encoding="utf-8").write(new)
+    if os.path.isdir(OVERRIDE_DIR):
+        for dirpath, _dirs, files in os.walk(OVERRIDE_DIR):
+            for f in files:
+                rel = os.path.relpath(os.path.join(dirpath, f), OVERRIDE_DIR)
+                out = os.path.join(dst, rel)
+                os.makedirs(os.path.dirname(out), exist_ok=True)
+                shutil.copy2(os.path.join(dirpath, f), out)
+
+    # config.yaml: drop the project-pinned MCP server and the removed skill names
+    cfg_path = os.path.join(dst, "config.yaml")
+    if os.path.exists(cfg_path):
+        out, skip = [], False
+        for line in open(cfg_path, encoding="utf-8").read().split("\n"):
+            if re.match(r"^  (%s):\s*$" % "|".join(EXCL_MCP_SERVERS), line):
+                skip = True
+                dropped += 1
+                continue
+            if skip and re.match(r"^  \S", line):
+                skip = False
+            if skip:
+                continue
+            if line.strip().startswith("- ") and line.strip()[2:].strip() in EXCL_SKILL_NAMES:
+                dropped += 1
+                continue
+            out.append(line)
+        open(cfg_path, "w", encoding="utf-8").write("\n".join(out))
+    return dropped
 
 CRED_RELS = [
     "plugins/vikunja/dashboard/.emv",
@@ -316,7 +519,7 @@ These are shared infrastructure, expected to exist on the target machine:
 
 Credentials, endpoints, hostnames, local paths and personal identity (name, handle,
 author IDs) are replaced with placeholders throughout. Skill *names* are kept verbatim
-(e.g. `ghasemi-latex-style`), because other files reference them by name — renaming one
+(e.g. `user-latex-style`), because other files reference them by name — renaming one
 would break the tree.
 
 ## Excluded on purpose
@@ -328,6 +531,12 @@ and telemetry bookkeeping files are left out as well — `.usage.json`, `.bundle
 `.curator_state`, `.curator_suppressed`, `.curator_ledger.jsonl` — since they record one
 installation's history rather than the profile's design. Hermes recreates the runtime
 state on first start.
+
+This pack is also **generalized**: skills tied to one user's research projects, and the worked-example
+notes that belonged to them, are not shipped; the project-pinned MCP
+server registration is removed, and the house LaTeX style is renamed to
+`user-latex-style`. Everything else — the configuration, the registrations, the
+remaining skills — is as it stands in the source profile.
 """
 
 EXTRA_MATH = ("* the SageMath conda environment (`sage`), the Lean/elan toolchain, and the TeX Live "
@@ -365,6 +574,7 @@ def main() -> int:
         lit_files = scrub_literals(dst, literals)
         patterned = scrub_patterns(dst)
         creds = template_credentials(dst)
+        dropped = generalize(dst)
 
         readme = README.format(
             prof=prof,
@@ -374,7 +584,8 @@ def main() -> int:
         open(os.path.join(dst, "README.md"), "w").write(readme)
 
         print(f"{prof:10s} files={n:4d}  .env-secrets={env_secrets:2d}  config-secrets={cfg_secrets:2d}  "
-              f"literal-scrubbed-files={lit_files:3d}  pattern-files={patterned:3d}  credential-templates={len(creds)}")
+              f"literal-scrubbed-files={lit_files:3d}  pattern-files={patterned:3d}  credential-templates={len(creds)}  "
+              f"generalized-dropped={dropped:2d}")
     return 0
 
 
