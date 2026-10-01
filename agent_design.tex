@@ -555,7 +555,7 @@ byte-identical in the two profiles.
 \textbf{Element} & \textbf{State} \\
 \midrule
 Enabled plugins & \mono{vikunja}, \mono{wiki-browser} --- identical in both profiles \\
-Disabled plugins & \mono{hermes-android}, \mono{spotify} --- identical in both profiles \\
+Disabled plugins & \mono{hermes-android} --- identical in both profiles \\
 Tool-override entries & \mono{hermes-android} and \mono{wiki-browser}, both with overrides denied \\
 Profile plugin directory & math carries the plugin trees; the librarian's is empty \\
 Shared installs & resolved from the shared Hermes plugin pool when a profile has no local copy \\
@@ -564,15 +564,11 @@ Desktop surfaces & \mono{desktop-plugins/} carries the \mono{vikunja} and \mono{
 \end{tabularx}
 \end{table}
 
-Three facts matter for the abstraction design. First, the librarian enables both plugins while its
+Two facts matter for the abstraction design. First, the librarian enables both plugins while its
 own \mono{plugins/} directory is empty: plugin resolution falls back to the shared pool exactly as
 skill resolution does, so the librarian's plugin capability is entirely borrowed --- and, as with
-skills, the coupling is by name rather than by manifest. Second, \mono{spotify} is listed as
-disabled in both profiles although no installed copy exists in either profile tree or in the shared
-pool; the name matches an upstream catalog plugin inside the Hermes source tree, so the entry is a
-no-op rather than a broken install --- the same class of residue as the curator tombstones noted in
-Section~\ref{sec:skills}. Third, \mono{hermes-android} sits in math's \mono{plugins/} directory but
-is disabled, while the plugin that carries credentials (\mono{vikunja}, whose dashboard ships a
+skills, the coupling is by name rather than by manifest. Second, \mono{hermes-android} sits in math's
+\mono{plugins/} directory but is disabled, while the plugin that carries credentials (\mono{vikunja}, whose dashboard ships a
 co-located \mono{.emv} file) is enabled in both profiles: plugin credentials, like skill
 credentials, live inside the tree that ships them, not in a profile-level secret store.
 
@@ -626,7 +622,6 @@ Ranked by severity, with the evidence for each entry given in the consequence co
 \textbf{Coupling} & \textbf{Consequence} & \textbf{Severity} \\
 \midrule
 Cross-profile script import (librarian $\to$ math) & Every adapter tool script, every native server script and the adapter itself resolve under the math profile; the librarian has no scripts directory of its own & critical \\
-math, failing at startup in the librarian & high \\
 Absolute skill paths in MCP configuration & Every registration hardcodes the full home path; no interpolation mechanism exists & high \\
 Hardcoded service endpoints & Environment files embed host and port directly; no name-based resolution & medium \\
 Project-pinned working directories & Working directory, repository scan roots and execution mode reference specific project trees; the kanban orchestrator is fixed to one profile in both configurations & medium \\
@@ -1337,9 +1332,10 @@ workspace-doc-hierarchy & Maintaining the layered documentation chain: project g
 \subsection{Notes on the catalog}
 
 \textbf{The two catalogs are the same catalog.} Each profile carries fifty-five and fifty-four skill
-entries respectively, and their union is fifty-seven: only five entries are exclusive to one profile ---
-the stack-reconstruction, exact-gate-scripts and profile-packaging skills in math, and the two
-ingestion skills in the librarian. Everything else is present in both trees, and the profiles differ only in what is
+entries respectively --- counting the general catalog documented here, not the project-specific skills
+a particular installation may also hold --- and their union is fifty-seven: only five entries are
+exclusive to one profile --- the stack-reconstruction, exact-gate-scripts and profile-packaging skills
+in math, and the two ingestion skills in the librarian. Everything else is present in both trees, and the profiles differ only in what is
 switched on.
 
 \textbf{Activation is a negative specification.} Math disables twelve names and the librarian
