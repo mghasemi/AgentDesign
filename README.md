@@ -5,7 +5,7 @@ covering what each is made of, how they share one tool stack, and how that stack
 ships with the two profiles as sanitized, ready-to-use packs and with the whole service plane as one
 reproducible `docker-compose` project.
 
-The document is `agent_design.pdf` (31 pp). Everything else in this repository either produces it or
+The document is `agent_design.pdf` (30 pp). Everything else in this repository either produces it or
 is a distributable artifact it describes.
 
 ## What is here
@@ -121,9 +121,17 @@ verbatim** (they are public references, and altering them would corrupt the lite
 
 | | |
 |---|---|
-| Document | 31 pp; compiles with 0 errors, 0 undefined references, 0 missing glyphs, 0 overfull vertical boxes |
+| Document | 30 pp; compiles with 0 errors, 0 undefined references, 0 missing glyphs, 0 overfull vertical boxes |
 | Stack | Validated against the live installation non-destructively: the compose configuration resolves, the dry-run plan matches the running containers one for one — identical names and identical published host ports for all sixteen |
 | Packs | Structure parity with the live profiles, 0 residual secrets after the redaction pass |
-| Open work | The nine couplings of Section 9; the four one-line remediations of Section 10(F); the abstraction layer sketched in Section 10 |
+| Open work | The seven couplings of Section 9; the four one-line remediations of Section 10(F); the abstraction layer sketched in Section 10 |
 
 See `AGENTS.md` for this repository's conventions and current status.
+
+## License
+
+MIT — see [`LICENSE`](LICENSE). © 2026 Mehdi Ghasemi.
+
+Third-party material that ships alongside — the LaTeX template under `cpistuff/`, and any bundled or
+upstream components inside the profile packs (`math/`, `librarian/`) and the service stack (`stack/`) —
+is included as-is and remains under its own terms.
