@@ -14,11 +14,7 @@
 \renewcommand{\familydefault}{\sfdefault} %Set default font to sans serif - must specify where roman is used
 
 \newgeometry{margin = 1in}
-\ifbool{Toptal}{
-\newcommand{\callout}[1]{{\large\emph{\textcolor{toptalBlue}{#1}}}}
-}{
 \newcommand{\callout}[1]{{\large\emph{\textcolor{cpiOrange}{#1}}}}
-}
 \renewcommand{\frame}[1]{\begin{framed} {\color{black} #1} \end{framed}}
 
 %\raggedright
@@ -38,39 +34,21 @@
 %CHANGE TITLE PAGE
 \renewcommand\@maketitle{\newpage
 \newgeometry{margin = 0in}
-\ifbool{Toptal}{
-\includegraphics[width=3in]{cpistuff/toptal_full_logo.png}
-}
-{
 	\ifbool{Proposal}{
 	\includegraphics[width=3.09in]{cpistuff/CPI_logo_cmyk.jpg}
 	}{\includegraphics[width=3.09in]{cpistuff/CPI_logo.jpg}}
-}
 \setlength{\fboxsep}{0pt}
-\ifbool{Toptal}{
-\hfill \colorbox{toptalGray}{\makebox[3.22in][r]{\shortstack[r]{\vspace{2.75in}}}}%
-}{
-\hfill \colorbox{cpiGray}{\makebox[3.22in][r]{\shortstack[r]{\vspace{2.75in}}}}%
-}
+\hfill \colorbox{cpiGray}{\makebox[3.22in][r]{\shortstack[r]{\vspace{2.75in}}}}
 \vspace{-0.25pt}
 \setlength{\fboxsep}{10pt}
 \setlength{\fboxrule}{0pt}
-\ifbool{Toptal}{
-\colorbox{toptalGreen}{\makebox[8.25in][l]{\hfill\shortstack[r]{\fontsize{36}{36}\rmfamily\color{white}\@title~\\%
-\fontsize{24}{24}\rmfamily\color{white}\cpiType~}}}%
-}{
 \colorbox{cpiOrange}{\makebox[8.25in][l]{\hfill \shortstack[r]{\fontsize{36}{36}\rmfamily\color{white} \@title~\\%
-\fontsize{24}{24}\rmfamily\color{white} \cpiType~}}}%
-}
+\fontsize{24}{24}\rmfamily\color{white} \cpiType~}}}
 \setlength{\fboxsep}{0pt}
 \vspace{-8.5pt}
 %\hfill \colorbox{cpiGray}{\makebox[3.22in][r]{\shortstack[r]{\vspace{4in} \color{white} \textbf{\@author \\ \\ Climate Policy Initiative San Francisco \\ \\ \today \vspace{2.3in}}}}%
 %\hfill \colorbox{cpiGray}{\hfill \begin{minipage}{3.22in} \vspace{3in} \color{white} turtleface \end{minipage}}%
-\ifbool{Toptal}{
-\hfill \colorbox{toptalGray}{\hspace{.25in} \parbox{2.97in}{\vspace{4in} \color{white} \textbf{\@author \\ \\ Project \ifbool{Proposal}{Proposal}{Report} \\ \\   \Date \vspace{2.3in} \vfill}}}%
-}{
-\hfill \colorbox{cpiGray}{\hspace{.25in} \parbox{2.97in}{\vspace{4in} \color{white} \textbf{\@author \\ \\ Project \ifbool{Proposal}{Proposal}{Report} \\ \\   \Date \vspace{2.3in} \vfill}}}%
-}
+\hfill \colorbox{cpiGray}{\hspace{.25in} \parbox{2.97in}{\vspace{4in} \color{white} \textbf{\@author \\ \\ Project \ifbool{Proposal}{Proposal}{Report} \\ \\   \Date \vspace{2.3in} \vfill}}}
 \let\Title\@title
 \restoregeometry}
 
@@ -81,20 +59,11 @@
 \fancyhead{}
 \fancyfoot{}
 \renewcommand{\headrulewidth}{0pt}
-\ifbool{Toptal}{
-\lhead{\rmfamily\includegraphics[width=.08in]{cpistuff/toptal_logo.png} \Title}
-}{
 \lhead{\rmfamily \Title}
-}
 \rhead{\rmfamily \Date}
-\ifbool{Toptal}{
-\lfoot{\rmfamily\includegraphics[width=.08in]{cpistuff/toptal_logo.png} \cpiType}
-}{
-}
+
 \rfoot{\rmfamily Page \thepage}
-\ifbool{Toptal}{
-{\Large \color{toptalGreen} Executive Summary}}{
-{\Large \color{cpiOrange} Executive Summary}}\\ \vspace{12pt}}
+{\Large \color{cpiOrange} Executive Summary}\\ \vspace{12pt}}
 {\pagebreak}
 
 
@@ -122,23 +91,12 @@
 
 \definecolor{cpiOrange}{RGB}{241,85,44}
 \definecolor{cpiGray}{RGB}{106,100,100}
-\definecolor{toptalBlue}{RGB}{32,78,207}
-\definecolor{toptalGreen}{RGB}{0,204,131}
-\definecolor{toptalGray}{RGB}{38,45,61}
 
-\ifbool{Toptal}{
-\renewcommand\section{
-\@startsection {section}{1}{\z@}%
-    {-3.5ex \@plus -0.1ex \@minus -.2ex}%
-    {1.2ex \@plus.01ex}%
-    {\rmfamily\Large\color{toptalBlue}}}
-}{
 \renewcommand\section{
 \@startsection {section}{1}{\z@}%
     {-3.5ex \@plus -0.1ex \@minus -.2ex}%
     {1.2ex \@plus.01ex}%
     {\rmfamily\Large\color{cpiOrange}}}
-}
 \renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
     {-3.25ex\@plus -0.1ex \@minus -.2ex}%
     {1.2ex \@plus .01ex}%
@@ -150,15 +108,9 @@
 
 
 %HOW THIS PART WORKS IS HIGHLY MYSTERIOUS TO ME - I STOLE IT (legally)
-\ifbool{Toptal}{
-\newenvironment{framed}% using default \FrameCommand
-  {\color{toptalGreen} \MakeFramed {\advance\hsize-\width \FrameRestore}}%
-  {\endMakeFramed}
-}{
 \newenvironment{framed}% using default \FrameCommand
   {\color{cpiOrange} \MakeFramed {\advance\hsize-\width \FrameRestore}}%
   {\endMakeFramed}
-}
 \chardef\FrameRestore=\catcode`\| % for debug
 \catcode`\|=\catcode`\% % (debug: insert space after backslash)
 

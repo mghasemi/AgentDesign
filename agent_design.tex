@@ -50,8 +50,6 @@
 \newcommand*{\Company}{Research Workspace}
 \newcommand*{\Us}{M. Ghasemi}
 
-\newbool{Toptal}
-\setbool{Toptal}{false}
 \newbool{Guidelines}
 \setbool{Guidelines}{false}
 \newbool{Proposal}
@@ -59,24 +57,13 @@
 
 \definecolor{DarkBlue}{rgb}{0,0.2,0.6}
 \definecolor{PinkPurple}{rgb}{0.8,0.3,0.3}
-\ifbool{Toptal}{
-	\hypersetup{
-		pdftitle={Project Proposal},
-		colorlinks=true,
-		linkcolor=toptalGreen,
-		filecolor=toptalGreen,
-		urlcolor=toptalGreen,
-		pdfauthor={Mehdi Ghasemi}
-	}
-}{
-	\hypersetup{
-		pdftitle={AgentDesign: Hermes Profile Architecture},
-		colorlinks=true,
-		linkcolor=DarkBlue,
-		filecolor=PinkPurple,
-		urlcolor=PinkPurple,
-		pdfauthor={Mehdi Ghasemi}
-	}
+\hypersetup{
+	pdftitle={AgentDesign: Hermes Profile Architecture},
+	colorlinks=true,
+	linkcolor=DarkBlue,
+	filecolor=PinkPurple,
+	urlcolor=PinkPurple,
+	pdfauthor={Mehdi Ghasemi}
 }
 
 \title{\Title}
